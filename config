@@ -1,0 +1,11 @@
+SUDO_USER=gmack
+NAME=nginx-exist
+OWNER=grantmacken
+DESCRIPTION=my setup for nginx as a reverse proxy for eXist database
+GIT_ACCESS_TOKEN_LOCATION="../.github-access-token"
+EXIST_DIR=/usr/local/eXist
+EXIST_DATA_DIR=webapp/WEB-INF/data
+SRC_DIR=src
+# source URLs
+EXIST_DOWNLOAD_SOURCE=http://sourceforge.net/projects/exist/files/latest/download
+EXIST_VERSION_SOURCE=http://sourceforge.net/projects/exist/files/
