@@ -4,8 +4,10 @@ my setup for nginx as a reverse proxy for the  eXist database
 NOTE: At the mo I am reworking some old bash scripts into a single Makefile.
 If it gets to untidy I will add make includes. I am pretty new to Make, so feel
 few to point out a better way of doing things.  Why I choose Make, is outline in
-the reasons given by (Mike Bostock)[http://bost.ocks.org/mike/make/]
-                         :
+the reasons given by [Mike Bostock](http://bost.ocks.org/mike/make/)
+
+---------------------------------------------------------------------------------
+
 **Nginx** as a reverse proxy and cache server for the eXist-db Application
 Server
 
