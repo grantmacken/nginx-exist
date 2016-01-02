@@ -3,7 +3,6 @@ OWNER=grantmacken
 DESCRIPTION=a setup for nginx as a reverse proxy for eXist database
 EXIST_DOWNLOAD_SOURCE=https://bintray.com/artifact/download/existdb/releases
 EXIST_VERSION_SOURCE=https://bintray.com/existdb/releases/exist/_latestVersion
-INIT_ADMIN_PASS=admin
 EXIST_HOME=/usr/local/eXist
 EXIST_DATA_DIR=webapp/WEB-INF/data
 GITHUB_ACCESS_TOKEN_PATH=../.github-access-token
