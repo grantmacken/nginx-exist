@@ -26,6 +26,7 @@ WHOAMI := $(shell whoami)
 INSTALLER := $(if $(SUDO_USER),$(SUDO_USER),$(WHOAMI))
 $(info SUDO USER - $(SUDO_USER))
 $(info Who Am I - $(WHOAMI))
+TEMP_DIR=.temp
 EXIST_VER := $(TEMP_DIR)/exist-latest.version
 EXIST_EXPECT := $(TEMP_DIR)/exist.expect
 EXPECT_LOG := $(TEMP_DIR)/exist.expect.log
@@ -34,9 +35,9 @@ EXIST_PASS := $(TEMP_DIR)/exist-pass.log
 
 cat = $(shell if [ -e $(1) ] ;then echo "$$(<$(1))" ;fi )
 GIT_USER := $(shell git config --get user.name)
-GITHUB_ACCESS_TOKEN := $(call cat,$(GITHUB_ACCESS_TOKEN_PATH))
+ACCESS_TOKEN := $(call cat,$(ACCESS_TOKEN_PATH))
 # if we have a github access token use that as admin pass
-P := $(if $(GITHUB_ACCESS_TOKEN),$(GITHUB_ACCESS_TOKEN),admin)
+P := $(if $(ACCESS_TOKEN),$(ACCESS_TOKEN),admin)
 
 EXIST_JAR = $(call cat,$(EXIST_VER))
 EXIST_JAR_PATH = $(TEMP_DIR)/$(call cat,$(EXIST_VER))
@@ -49,7 +50,7 @@ installer := $(if $(SUDO_USER),$(SUDO_USER),$(WHOAMI))
 # @echo 'EXIST_VERSION_SOURCE: $(EXIST_VERSION_SOURCE)'
 # @echo 'DESCRIPTION: $(DESCRIPTION)'
 # @echo 'GIT_USER_NAME: $(GIT_USER)'
-# @echo 'GITHUB_ACCESS_TOKEN: $(GITHUB_ACCESS_TOKEN:)'
+# @echo 'ACCESS_TOKEN: $(ACCESS_TOKEN:)'
 # @echo 'EXIST_HOME: $(EXIST_HOME)'
 # @echo 'EXST_JAR $(EXIST_JAR)'
 # @echo "EXIST_JAR_PATH $(EXIST_JAR_PATH)"
@@ -202,7 +203,7 @@ $(EXIST_SERVICE): $(EXPECT_LOG)
 
 $(EXIST_PASS):
 	@echo "## $(notdir $@) ##"
-	@$(call assert-file-present,$(GITHUB_ACCESS_TOKEN_PATH))
+	@$(call assert-file-present,$(ACCESS_TOKEN_PATH))
 	@echo "GIT_USER: $(GIT_USER) "
 ifeq ($(call isUser,admin),admin)
 	@echo 'admin is in eXists list of users'
@@ -218,7 +219,7 @@ ifeq ($(call isUser,$(GIT_USER)),)
 	@echo 'no user but check for users group account an remove if exists'
 	@$(if $(call isGroup,$(GIT_USER)),\
  $(call removeGroup,$(GIT_USER)),echo 'OK')
-	@$(call createDBA,$(GIT_USER),$(GITHUB_ACCESS_TOKEN))
+	@$(call createDBA,$(GIT_USER),$(ACCESS_TOKEN))
 endif
 ifeq ($(call isUser,$(GIT_USER)),$(GIT_USER))
 	@echo '$(GIT_USER) is in eXists list of users'
@@ -227,6 +228,6 @@ ifeq ($(call isGroup,$(GIT_USER)),$(GIT_USER))
 	@echo '$(GIT_USER) is in eXists list of groups'
 endif
 	@echo "login using git user name and github access token"
-	@echo "$(call isAuthenticated,$(GIT_USER),$(GITHUB_ACCESS_TOKEN))"
+	@echo "$(call isAuthenticated,$(GIT_USER),$(ACCESS_TOKEN))"
 	@echo '-------------------------------------------------------------------'
 

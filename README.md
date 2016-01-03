@@ -32,7 +32,40 @@ and remote production servers.
 Setting up eXist.
 -----------------
 
+WARNING! 
+back up your existing eXist deployment first.  
+The process is automated, it will wipe out your  `/usr/local/eXist` folder.
 
+##Requirements##
+
+A modern Linux OS that uses `systemd`. I recommend  Ubuntu  15.10 onwards
+
+gnu make, expect, git, curl, wget, java 8( I'll add my install for this later) 
+
+##Installing##
+
+ On your local machine you will have to run as sudo `sudo make exist-install` while
+ on your ssh remote vps, you should be root so `make exist-install` 
+
+This will 
+
+1. establish the latest eXist version
+2. download latest eXist install jar
+3. create the expect install script to automate installation
+4. run the expect script to install exist to '/usr/local/eXist'
+5. create a systemd exist.service script and then enable and start the service 
+
+##Passwords and Permissions##
+ 
+Passwords: the default admin password is admin, however if there is a file in the ACCESS_TOKEN_PATH (see config) then our Makefile will use the content of that instead. I use my github access token because it reasonably long and easy to regenerate
+
+Permissions: When setting up eXist on our local machine, we have to install as sudo because we are
+changing system settings, however Makefile will change ownership back to to the user account.
+When running on our local machine the exist.service will run as user under the
+user group (see Makefile) and not as root. We want this so when eXist writes to
+file (e.g. logs) we have read access without dropping into sudo.
+
+On our VPS, the exist.service will run as root.
 
 
 Setting Up Nginx
