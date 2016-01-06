@@ -23,6 +23,10 @@ INSTALLER := $(if $(SUDO_USER),$(SUDO_USER),$(WHOAMI))
 $(info SUDO USER - $(SUDO_USER))
 $(info Who Am I - $(WHOAMI))
 TEMP_DIR=.temp
+ifeq ($(WHOAMI),travis)
+EXIST_HOME = $(HOME)/eXist
+endif
+$(info eXist home - $(EXIST_HOME))
 EXIST_VER := $(TEMP_DIR)/exist-latest.version
 EXIST_EXPECT := $(TEMP_DIR)/exist.expect
 EXPECT_LOG := $(TEMP_DIR)/exist.expect.log
@@ -59,7 +63,6 @@ help:
 	ls -al /usr/local/lib
 	ls -al /usr/local/bin
 	ls -al /usr/local/share
-	system-info
 
 
 build:  $(EXIST_VER)
@@ -78,11 +81,9 @@ $(EXIST_EXPECT): $(EXIST_VER)
 	@$(call assert-is-root)
 	@echo "EXIST_JAR: $(call EXIST_JAR)"
 	@echo "EXIST_JAR_PATH: $(call EXIST_JAR_PATH)"
-ifeq ($(wildcard $(call EXIST_JAR_PATH)),)
-	@echo 'checked we do not have $(call EXIST_JAR) so will download'
-	@wget -O "$(call EXIST_JAR_PATH)" --trust-server-name "$(EXIST_DOWNLOAD_SOURCE)/$(call EXIST_JAR)"
-	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(call EXIST_JAR_PATH),)
-endif
+	$(if $(wildcard $(call EXIST_JAR_PATH)),\
+ wget -O "$(call EXIST_JAR_PATH)" --trust-server-name "$(EXIST_DOWNLOAD_SOURCE)/$(call EXIST_JAR)",)
+	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(call EXIST_JAR_PATH),)                  
 	@echo 'we have $(call EXIST_JAR)'
 	@echo 'creating expect file'
 	$(file > $(EXIST_EXPECT),#!/usr/bin/expect )
