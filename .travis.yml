@@ -13,6 +13,7 @@ before_install:
 - which make
 - echo "install latest eXist release"
 - touch config
+- make help
 install:
     - make build
 script:

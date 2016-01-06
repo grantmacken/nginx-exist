@@ -55,6 +55,7 @@ installer := $(if $(SUDO_USER),$(SUDO_USER),$(WHOAMI))
 
 help:
 	$(info install exist)
+	ls -al $$(EXIST_HOME)
 
 build:  $(EXIST_VER) 
 
@@ -101,11 +102,8 @@ endif
 $(EXPECT_LOG): $(EXIST_EXPECT)
 	@echo "## $(notdir $@) ##"
 	@$(call assert-is-root)
-ifneq ( $(shell journalctl -u exist | tail -n 3 | grep -oP 'Stopped' | tail -1 ),Stopped)
-	@echo 'stop existing eXist service'
-	@systemctl stop exist
-endif
-	@journalctl -u exist | tail -n 3 | grep -oP 'Stopped(.+)' | tail -1
+	if( $(shell journalctl -u exist | tail -n 3 | grep -oP 'Stopped'),\
+ systemctl stop exist,)
 	@curl -I -s -f 'http://localhost:8080/' || echo 'OK. curl can not connect to port 8080'
 	@echo 'remove any exiting eXist instalation'
 	@if [ -d $(EXIST_HOME) ] ;then rm -R $(EXIST_HOME) ;fi
