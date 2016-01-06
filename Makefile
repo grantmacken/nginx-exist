@@ -1,10 +1,6 @@
 include config
 SHELL=/bin/bash
 # Make sure we have the following apps installed:
-$(if $(shell ps -p1 | grep systemd ),\
- $(info  OK init system is systemd),\
- $(error init system is not systemd) )
-# Make sure we have the following apps installed:
 APP_LIST := wget git curl expect
 assert-command-present = $(if $(shell which $1),,$(error '$1' missing and needed for this build))
 $(foreach src,$(APP_LIST),$(call assert-command-present,$(src)))
@@ -123,6 +119,9 @@ endif
 #@systemctl list-units --type=target
 
 $(EXIST_SERVICE): $(EXPECT_LOG)
+	$(if $(shell ps -p1 | grep systemd ),\
+ $(info  OK init system is systemd),\
+ $(error init system is not systemd) )
 	@echo "## $(notdir $@) ##"
 	@$(call assert-is-root)
 	@systemctl is-failed exist.service > /dev/null && echo 'OK! unit intentionally stopped'
