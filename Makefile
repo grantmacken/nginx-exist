@@ -56,8 +56,14 @@ installer := $(if $(SUDO_USER),$(SUDO_USER),$(WHOAMI))
 help:
 	$(info install exist)
 	ls -al /usr/local
+	ls -al /usr/local/lib
+	ls -al /usr/local/bin
+	ls -al /usr/local/src
+	ls -al /usr/local/etc
+	ls -al /usr/local/include
 
-build:  $(EXIST_VER) 
+
+build:  $(EXIST_VER)
 
 $(EXIST_VER): config
 	@echo "## $(notdir $@) ##"
@@ -71,7 +77,7 @@ $(EXIST_VER): config
 $(EXIST_EXPECT): $(EXIST_VER)
 	@echo "## $(notdir $@) ##"
 	@$(call assert-is-root)
-	@echo "EXIST_JAR: $(call EXIST_JAR)"        
+	@echo "EXIST_JAR: $(call EXIST_JAR)"
 	@echo "EXIST_JAR_PATH: $(call EXIST_JAR_PATH)"
 ifeq ($(wildcard $(call EXIST_JAR_PATH)),)
 	@echo 'checked we do not have $(call EXIST_JAR) so will download'
