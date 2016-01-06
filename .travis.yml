@@ -4,7 +4,7 @@ jdk:
 - oraclejdk8
 before_install:
 - which java
-  which expect
+- which expect
 - echo "install latest eXist release"
 - touch config
 install:
