@@ -56,7 +56,7 @@ installer := $(if $(SUDO_USER),$(SUDO_USER),$(WHOAMI))
 help:
 	$(info install exist)
 
-exist-install:  $(EXPECT_LOG) 
+build:  $(EXIST_VER) 
 
 $(EXIST_VER): config
 	@echo "## $(notdir $@) ##"
