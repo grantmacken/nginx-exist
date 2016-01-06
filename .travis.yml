@@ -1,7 +1,11 @@
 sudo: false
 language: java
 jdk:
-- oraclejdk8
+    - oraclejdk8
+addons:
+    apt:
+        packages:
+        - expect
 before_install:
 - which java
 - which expect
