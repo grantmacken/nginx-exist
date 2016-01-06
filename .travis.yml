@@ -15,6 +15,6 @@ before_install:
 - touch config
 - make help
 install:
-    - true
+    - make
 script:
     - true
