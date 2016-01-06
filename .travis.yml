@@ -6,6 +6,7 @@ addons:
     apt:
         packages:
         - expect
+        - make
 before_install:
 - which java
 - which expect
