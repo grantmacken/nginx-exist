@@ -6,11 +6,11 @@ addons:
     apt:
         packages:
         - expect
-        - make
 before_install:
 - which java
 - which expect
 - which prove
+- which make
 - echo "install latest eXist release"
 - touch config
 - make help
