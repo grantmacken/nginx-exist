@@ -82,7 +82,7 @@ $(TEMP_DIR)/wget-exist.log: $(TEMP_DIR)/exist-latest.version
 	@echo "## $(notdir $@) ##"
 	@echo "EXIST_JAR: $(call EXIST_JAR)"
 	@echo "EXIST_JAR_PATH: $(call EXIST_JAR_PATH)"
-	wget -o $@ -O "$(call EXIST_JAR_PATH)" --trust-server-name "$(EXIST_DOWNLOAD_SOURCE)/$(call EXIST_JAR)",)
+	wget -o $@ -O "$(call EXIST_JAR_PATH)" --trust-server-name "$(EXIST_DOWNLOAD_SOURCE)/$(call EXIST_JAR)"
 	@cat $@
 	@echo '-------------------------------------------------------------------'
 
