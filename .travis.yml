@@ -3,7 +3,9 @@ language: java
 jdk:
 - oraclejdk8
 before_install:
-- echo "install latest exist build"
+- which java
+  which expect
+- echo "install latest eXist release"
 - touch config
 install:
     - true
