@@ -5,5 +5,5 @@ EXIST_DOWNLOAD_SOURCE=https://bintray.com/artifact/download/existdb/releases
 EXIST_VERSION_SOURCE=https://bintray.com/existdb/releases/exist/_latestVersion
 EXIST_HOME=/usr/local/eXist
 EXIST_DATA_DIR=webapp/WEB-INF/data
-GITHUB_ACCESS_TOKEN_PATH=../.github-access-token
+ACCESS_TOKEN_PATH=../.access-token
 TEMP_DIR=.temp

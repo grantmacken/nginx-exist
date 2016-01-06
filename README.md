@@ -44,8 +44,9 @@ gnu make, expect, git, curl, wget, java 8( I'll add my install for this later)
 
 ##Installing##
 
- On your local machine you will have to run as sudo `sudo make exist-install` while
- on your ssh remote vps, you should be root so `make exist-install` 
+ On your local machine you will have to run as sudo `sudo make exist-install`
+
+ On your ssh remote VPS, you should be root so `make exist-install` 
 
 This will 
 

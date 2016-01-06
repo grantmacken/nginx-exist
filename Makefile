@@ -21,7 +21,7 @@ $(colon) := :
 # otherwise will be empty when running on remote
 # so if running as sudo on desktop we can change permissions back to $SUDO_USER
 #$(if $(SUDO_USER),$(info do something),$(info do not do anything))
-SUDO_USER := $(shell echo "$$SUDO_USER")
+SUDO_USER := $(shell echo "$${SUDO_USER}")
 WHOAMI := $(shell whoami)
 INSTALLER := $(if $(SUDO_USER),$(SUDO_USER),$(WHOAMI))
 $(info SUDO USER - $(SUDO_USER))
@@ -35,8 +35,14 @@ EXIST_PASS := $(TEMP_DIR)/exist-pass.log
 
 cat = $(shell if [ -e $(1) ] ;then echo "$$(<$(1))" ;fi )
 GIT_USER := $(shell git config --get user.name)
+
+$(info GIT USER - $(GIT_USER))
 ACCESS_TOKEN := $(call cat,$(ACCESS_TOKEN_PATH))
 # if we have a github access token use that as admin pass
+$(if $(ACCESS_TOKEN),\
+ $(info using found 'access token' for password),\
+ $(info using 'admin' for password ))
+
 P := $(if $(ACCESS_TOKEN),$(ACCESS_TOKEN),admin)
 
 EXIST_JAR = $(call cat,$(EXIST_VER))
@@ -47,75 +53,14 @@ START_JAR := $(JAVA) -Djava.endorsed.dirs=lib/endorsed -jar start.jar
 
 installer := $(if $(SUDO_USER),$(SUDO_USER),$(WHOAMI))
 
-# @echo 'EXIST_VERSION_SOURCE: $(EXIST_VERSION_SOURCE)'
-# @echo 'DESCRIPTION: $(DESCRIPTION)'
-# @echo 'GIT_USER_NAME: $(GIT_USER)'
-# @echo 'ACCESS_TOKEN: $(ACCESS_TOKEN:)'
-# @echo 'EXIST_HOME: $(EXIST_HOME)'
-# @echo 'EXST_JAR $(EXIST_JAR)'
-# @echo "EXIST_JAR_PATH $(EXIST_JAR_PATH)"
-# @echo "USER_ID $(shell id -u)"
-# @echo "USER $(shell whoami)"
-# @echo '$(if $(shell if [ $$(id -u) -eq 0 ] ;then  echo "isRoot";fi ),$(shell echo "$${SUDO_USER}" ),$(shell whoami) )'
-#
-#  when not running sudo on the desktop
-ifeq ($(SUDO_USER),)
-cmdExistClient = java -jar $(EXIST_HOME)/start.jar client -sqx -u $(1) -P $(2)
-smFindUsersByUsername = sm$(:)find-users-by-username('$(1)')
-smFindGroupsByGroupname = sm$(:)find-groups-by-groupname('$(1)')
-smRemoveGroup = sm$(:)remove-group('$(1)')
-smIsDBA = sm$(:)is-dba('$(1)')
-smIsAccountEnabled = sm$(:)is-account-enabled('$(1)')
-smIsAuthenticated = sm$(:)is-authenticated()
-smCreateAccount = sm$(:)create-account('$(1)','$(2)','$(3)')
-
-isUser = $(shell echo "$$(cd $(EXIST_HOME);\
- echo "$(call smFindUsersByUsername,$(1))" | \
- $(call cmdExistClient,admin,$(P)) | \
- tail -1 | \
- grep '$(1)')")
-
-isGroup = $(shell echo "$$(cd $(EXIST_HOME);\
- echo "$(call smFindGroupsByGroupname,$(1))" | \
- $(call cmdExistClient,admin,$(P)) | \
- tail -1 | \
- grep '$(1)')")
-
-createDBA = $(shell echo "$$(cd $(EXIST_HOME);\
- echo "sm$(:)create-account('$(1)','$(2)','$(3)')" | \
- $(call cmdExistClient,admin,$(P)) | \
- tail -1 )")
-
-removeGroup = $(shell echo "$$(cd $(EXIST_HOME);\
- echo "sm:remove-group('$(1)')" | \
- $(call cmdExistClient,admin,$(P)))")
-
-isAuthenticated  = $(shell echo "$$(cd $(EXIST_HOME);\
- echo 'sm:is-authenticated()' |\
- $(call cmdExistClient,$(1),$(2)) | \
- tail -1 )")
-
-endif
-
-# isDBA  = $(shell echo "$$(cd $(EXIST_HOME);\
-#  echo "sm:is-dba('$(1)')" |\
-#  $(call cmdExistClient,$(2),$(3)) | \
-#  tail -1 )")
-
-# NY: all
-# userExists  = $(shell echo "$$(cd $(EXIST_HOME);\
-#  echo "sm:user-exists('$(1)')" |\
-#  $(call cmdExistClient,$(2),$(3)) | \
-#  tail -1 )")
-
 .PHONY: help
 
+# @$(if $(SUDO_USER),$(info do something),$(info do not do anything))
+
 help:
-	@$(if $(SUDO_USER),$(info do something),$(info do not do anything))
+	$(info install exist)
 
-exist-install:  $(EXIST_SERVICE) 
-
-exist-pass:  $(EXIST_PASS)
+exist-install:  $(EXPECT_LOG) 
 
 $(EXIST_VER): config
 	@echo "## $(notdir $@) ##"
@@ -186,6 +131,8 @@ $(EXIST_SERVICE): $(EXPECT_LOG)
 	$(file >> $(@),After=network.target)
 	$(file >> $(@),)
 	$(file >> $(@),[Service])
+	$(file >> $(@),Enviroment="EXIST_HOME=$(EXIST_HOME)")
+	$(file >> $(@),$(if $(SUDO_USER),Enviroment="SERVER=development",Enviroment="SERVER=production"))
 	$(file >> $(@),WorkingDirectory=$(EXIST_HOME))
 	$(file >> $(@),User=$(INSTALLER))
 	$(file >> $(@),Group=$(INSTALLER))
@@ -200,34 +147,3 @@ $(EXIST_SERVICE): $(EXPECT_LOG)
 	@systemctl start  $(notdir $@)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '-------------------------------------------------------------------'
-
-$(EXIST_PASS):
-	@echo "## $(notdir $@) ##"
-	@$(call assert-file-present,$(ACCESS_TOKEN_PATH))
-	@echo "GIT_USER: $(GIT_USER) "
-ifeq ($(call isUser,admin),admin)
-	@echo 'admin is in eXists list of users'
-endif
-ifeq ($(call isUser,$(GIT_USER)),)
-	@echo '$(GIT_USER) does not exist in eXists list of users'
-endif
-ifeq ($(call isGroup,$(GIT_USER)),)
-	@echo '$(GIT_USER) does not exist in eXists list of groups'
-endif
-	@echo "Create a new default password using git user name and github access token"
-ifeq ($(call isUser,$(GIT_USER)),)
-	@echo 'no user but check for users group account an remove if exists'
-	@$(if $(call isGroup,$(GIT_USER)),\
- $(call removeGroup,$(GIT_USER)),echo 'OK')
-	@$(call createDBA,$(GIT_USER),$(ACCESS_TOKEN))
-endif
-ifeq ($(call isUser,$(GIT_USER)),$(GIT_USER))
-	@echo '$(GIT_USER) is in eXists list of users'
-endif
-ifeq ($(call isGroup,$(GIT_USER)),$(GIT_USER))
-	@echo '$(GIT_USER) is in eXists list of groups'
-endif
-	@echo "login using git user name and github access token"
-	@echo "$(call isAuthenticated,$(GIT_USER),$(ACCESS_TOKEN))"
-	@echo '-------------------------------------------------------------------'
-
