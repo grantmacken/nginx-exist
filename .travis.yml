@@ -9,6 +9,7 @@ addons:
 before_install:
 - which java
 - which expect
+- which prove
 - echo "install latest eXist release"
 - touch config
 install:
