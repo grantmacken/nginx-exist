@@ -58,9 +58,8 @@ help:
 	ls -al /usr/local
 	ls -al /usr/local/lib
 	ls -al /usr/local/bin
-	ls -al /usr/local/src
-	ls -al /usr/local/etc
-	ls -al /usr/local/include
+	ls -al /usr/local/share
+	system-info
 
 
 build:  $(EXIST_VER)
