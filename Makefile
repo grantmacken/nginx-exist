@@ -75,6 +75,7 @@ $(EXIST_VER): config
 	@curl -s -L  $(EXIST_VERSION_SOURCE) | grep -oP '>\KeXist-db-setup[-\w\.]+' > $@
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@ls -al $(dir $@)
+	@cat $@
 	@echo "$(call cat,$@)"
 	@echo '-------------------------------------------------------------------'
 
