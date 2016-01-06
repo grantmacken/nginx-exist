@@ -60,6 +60,8 @@ exist-install:  $(EXPECT_LOG)
 
 $(EXIST_VER): config
 	@echo "## $(notdir $@) ##"
+	@echo mkdir $(dir $@)
+	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $dir (@),)
 	@$(call assert-is-root)
 	@echo 'fetch the latest eXist version'
 	@curl -s -L  $(EXIST_VERSION_SOURCE) | grep -oP '>\KeXist-db-setup[-\w\.]+' > $@
