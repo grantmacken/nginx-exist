@@ -65,9 +65,9 @@ help:
 	ls -al /usr/local/share
 
 
-build:  $(EXIST_VER)
+build:  $(TEMP_DIR)/wget-exist.log
 
-$(EXIST_VER): config
+$(TEMP_DIR)/exist-latest.version:  config
 	@echo "## $(notdir $@) ##"
 	@mkdir $(dir $@)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $dir (@),)
@@ -76,7 +76,14 @@ $(EXIST_VER): config
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@ls -al $(dir $@)
 	@cat $@
-	@echo "$(call cat,$@)"
+	@echo '-------------------------------------------------------------------'
+
+$(TEMP_DIR)/wget-exist.log: $(TEMP_DIR)/exist-latest.version
+	@echo "## $(notdir $@) ##"
+	@echo "EXIST_JAR: $(call EXIST_JAR)"
+	@echo "EXIST_JAR_PATH: $(call EXIST_JAR_PATH)"
+	wget -o $@ -O "$(call EXIST_JAR_PATH)" --trust-server-name "$(EXIST_DOWNLOAD_SOURCE)/$(call EXIST_JAR)",)
+	@cat $@
 	@echo '-------------------------------------------------------------------'
 
 $(EXIST_EXPECT): $(EXIST_VER)
