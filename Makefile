@@ -55,7 +55,7 @@ installer := $(if $(SUDO_USER),$(SUDO_USER),$(WHOAMI))
 
 help:
 	$(info install exist)
-	ls -al $(EXIST_HOME)
+	ls -al /usr/local
 
 build:  $(EXIST_VER) 
 
