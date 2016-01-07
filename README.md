@@ -44,9 +44,15 @@ gnu make, expect, git, curl, wget, java 8( I'll add my install for this later)
 
 ##Installing##
 
- On your local machine you will have to run as sudo `sudo make exist-install`
+ On our local machine we will install eXist into /usr/local (see congfig)
+ 
+ /usr/local out of the box is owned by root, so I change this by
 
- On your ssh remote VPS, you should be root so `make exist-install` 
+'sudo chown -R $USER /usr/local'
+
+otherwise you will have to run make as sudo
+
+ On your ssh remote VPS, you should be root so no need to sudox`make exist-install` 
 
 This will 
 

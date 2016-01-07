@@ -27,11 +27,7 @@ ifeq ($(WHOAMI),travis)
 EXIST_HOME = $(HOME)/eXist
 endif
 $(info eXist home - $(EXIST_HOME))
-EXIST_VER := $(TEMP_DIR)/exist-latest.version
-EXIST_EXPECT := $(TEMP_DIR)/exist.expect
-EXPECT_LOG := $(TEMP_DIR)/exist.expect.log
-EXIST_SERVICE := $(TEMP_DIR)/exist.service
-EXIST_PASS := $(TEMP_DIR)/exist-pass.log
+EXIST_VERSION := $(TEMP_DIR)/eXist-latest.version
 
 cat = $(shell if [ -e $(1) ] ;then echo "$$(<$(1))" ;fi )
 GIT_USER := $(shell git config --get user.name)
@@ -45,8 +41,8 @@ $(if $(ACCESS_TOKEN),\
 
 P := $(if $(ACCESS_TOKEN),$(ACCESS_TOKEN),admin)
 
-EXIST_JAR = $(call cat,$(EXIST_VER))
-EXIST_JAR_PATH = $(TEMP_DIR)/$(call cat,$(EXIST_VER))
+EXIST_JAR = $(call cat,$(EXIST_VERSION))
+EXIST_JAR_PATH = $(TEMP_DIR)/$(call cat,$(EXIST_VERSION))
 #shortcuts
 JAVA := $(shell which java)
 START_JAR := $(JAVA) -Djava.endorsed.dirs=lib/endorsed -jar start.jar
@@ -57,6 +53,9 @@ installer := $(if $(SUDO_USER),$(SUDO_USER),$(WHOAMI))
 
 # @$(if $(SUDO_USER),$(info do something),$(info do not do anything))
 
+
+build:  $(TEMP_DIR)/eXist-expect.log
+
 help:
 	$(info install exist)
 	ls -al /usr/local
@@ -64,12 +63,9 @@ help:
 	ls -al /usr/local/bin
 	ls -al /usr/local/share
 
-
-build:  $(TEMP_DIR)/wget-exist.log
-
-$(TEMP_DIR)/exist-latest.version:  config
+$(EXIST_VERSION):  config
 	@echo "## $(notdir $@) ##"
-	@mkdir $(dir $@)
+	@if [ -d $(dir $@) ] ;then echo 'temp dir exists';else mkdir $(dir $@) ;fi
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $dir (@),)
 	@echo 'fetch the latest eXist version'
 	@curl -s -L  $(EXIST_VERSION_SOURCE) | grep -oP '>\KeXist-db-setup[-\w\.]+' > $@
@@ -78,53 +74,51 @@ $(TEMP_DIR)/exist-latest.version:  config
 	@cat $@
 	@echo '-------------------------------------------------------------------'
 
-$(TEMP_DIR)/wget-exist.log: $(TEMP_DIR)/exist-latest.version
+$(TEMP_DIR)/wget-eXist.log: $(EXIST_VERSION)
 	@echo "## $(notdir $@) ##"
+	@$(if $(call EXIST_JAR),,$(error oh no! this is bad))
 	@echo "EXIST_JAR: $(call EXIST_JAR)"
 	@echo "EXIST_JAR_PATH: $(call EXIST_JAR_PATH)"
-	wget -o $@ -O "$(call EXIST_JAR_PATH)" --trust-server-name "$(EXIST_DOWNLOAD_SOURCE)/$(call EXIST_JAR)"
+	@echo "Downloading $(call EXIST_JAR). Be Patient! this can take a few minutes"
+	@wget -o $@ -O "$(call EXIST_JAR_PATH)" \
+ --trust-server-name  --progress=dot$(:)mega  \
+ "$(EXIST_DOWNLOAD_SOURCE)/$(call EXIST_JAR)"
+	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@cat $@
 	@echo '-------------------------------------------------------------------'
 
-$(EXIST_EXPECT): $(EXIST_VER)
+$(TEMP_DIR)/eXist.expect: $(TEMP_DIR)/wget-eXist.log
 	@echo "## $(notdir $@) ##"
-	@$(call assert-is-root)
-	@echo "EXIST_JAR: $(call EXIST_JAR)"
-	@echo "EXIST_JAR_PATH: $(call EXIST_JAR_PATH)"
-	$(if $(wildcard $(call EXIST_JAR_PATH)),\
- wget -O "$(call EXIST_JAR_PATH)" --trust-server-name "$(EXIST_DOWNLOAD_SOURCE)/$(call EXIST_JAR)",)
-	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(call EXIST_JAR_PATH),)                  
 	@echo 'we have $(call EXIST_JAR)'
 	@echo 'creating expect file'
-	$(file > $(EXIST_EXPECT),#!/usr/bin/expect )
-	$(file >> $(EXIST_EXPECT),spawn su -c "java -jar $(call EXIST_JAR_PATH) -console" -s /bin/sh $(INSTALLER) )
-	$(file >> $(EXIST_EXPECT),expect "Select target" { send "$(EXIST_HOME)\n" } )
-	$(file >> $(EXIST_EXPECT),expect "*ress 1" { send "1\n" } )
-	$(file >> $(EXIST_EXPECT),expect "*ress 1" { send "1\n" } )
-	$(file >> $(EXIST_EXPECT),expect "Data dir" { send "$(EXIST_DATA_DIR)\n" })
-	$(file >> $(EXIST_EXPECT),expect "*ress 1" { send "1\n" })
-	$(file >> $(EXIST_EXPECT),expect "Enter password" { send "$(P)\n" })
-	$(file >> $(EXIST_EXPECT),expect "Enter password" { send "$(P)\n" })
-	$(file >> $(EXIST_EXPECT),expect "Maximum memory" { send "\n" } )
-	$(file >> $(EXIST_EXPECT),expect "Cache memory" { send "\n" } )
-	$(file >> $(EXIST_EXPECT),expect "*ress 1" {send "1\n"} )
-	$(file >> $(EXIST_EXPECT),expect -timeout -1 "Console installation done" {)
-	$(file >> $(EXIST_EXPECT), wait )
-	$(file >> $(EXIST_EXPECT), exit )
-	$(file >> $(EXIST_EXPECT),} )
+	$(file > $(@),#!/usr/bin/expect )
+	$(if $(SUDO_USER),\
+ $(file >> $(@),spawn su -c "java -jar $(call EXIST_JAR_PATH) -console" -s /bin/sh $(INSTALLER) ),\
+ $(file >> $(@),spawn java -jar $(call EXIST_JAR_PATH) -console))
+	$(file >> $(@),expect "Select target" { send "$(EXIST_HOME)\n" } )
+	$(file >> $(@),expect "*ress 1" { send "1\n" } )
+	$(file >> $(@),expect "*ress 1" { send "1\n" } )
+	$(file >> $(@),expect "Data dir" { send "$(EXIST_DATA_DIR)\n" })
+	$(file >> $(@),expect "*ress 1" { send "1\n" })
+	$(file >> $(@),expect "Enter password" { send "$(P)\n" })
+	$(file >> $(@),expect "Enter password" { send "$(P)\n" })
+	$(file >> $(@),expect "Maximum memory" { send "\n" } )
+	$(file >> $(@),expect "Cache memory" { send "\n" } )
+	$(file >> $(@),expect "*ress 1" {send "1\n"} )
+	$(file >> $(@),expect -timeout -1 "Console installation done" {)
+	$(file >> $(@), wait )
+	$(file >> $(@), exit )
+	$(file >> $(@),} )
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '-------------------------------------------------------------------'
 
-$(EXPECT_LOG): $(EXIST_EXPECT)
+$(TEMP_DIR)/eXist-expect.log: $(TEMP_DIR)/eXist.expect
 	@echo "## $(notdir $@) ##"
-	@$(call assert-is-root)
-	if( $(shell journalctl -u exist | tail -n 3 | grep -oP 'Stopped'),\
- systemctl stop exist,)
-	@curl -I -s -f 'http://localhost:8080/' || echo 'OK. curl can not connect to port 8080'
+	@$(if $(shell curl -I -s -f 'http://localhost:8080/' ),$(error detected eXist already running),)
 	@echo 'remove any exiting eXist instalation'
 	@if [ -d $(EXIST_HOME) ] ;then rm -R $(EXIST_HOME) ;fi
 	@echo 'make eXist dir and reset permissions back to user'
-	@mkdir -p  $(EXIST_HOME)
+	@mkdir -p $(EXIST_HOME)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(EXIST_HOME),)
 	@echo "Install eXist via expect script. Be Patient! this can take a few minutes"
 	@expect < $(<) | tee $@ 2>&1
