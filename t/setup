@@ -1,0 +1,14 @@
+ #!/usr/bin/env bash 
+if [[ $USER = travis ]]  ; then
+TEST_MORE_PATH='test-more-bash'
+else
+TEST_MORE_PATH='../bin/ext/test-more-bash'
+fi
+
+BASHLIB="$(
+ find $TEST_MORE_PATH -type d |
+ grep -E '/(bin|lib)$' |
+ xargs -n1 printf "%s:")"
+PATH="$BASHLIB$PATH"
+
+source bash+ :std
