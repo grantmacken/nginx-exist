@@ -57,7 +57,6 @@ EXPECT := $(shell which expect)
 
 # @$(if $(SUDO_USER),$(info do something),$(info do not do anything))
 
-
 build:  $(TEMP_DIR)/eXist-expect.log
 
 help:
@@ -114,7 +113,7 @@ $(TEMP_DIR)/eXist.expect: $(TEMP_DIR)/wget-eXist.log
 	@echo ' exit'  >> $(@)
 	@echo '}'  >> $(@)
 	@ls -al $(@)
-	@cat $(@)                                 
+	@cat $(@)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@chmod +x $(@)
 	@echo '-------------------------------------------------------------------'

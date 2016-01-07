@@ -27,53 +27,63 @@ server) provided by a  site hosting provider. I use a local one
 <http://site-host.co.nz> at the cost of about $30 per month.
 
 Included is the Makefile I will be using to set up such local development
-and remote production servers.
+and remote production servers. The project uses a simple config file for some
+settings.
+
+##Testing 1, 2, 3
+
+The install is run on Travis
+
+[![Build Status](https://travis-ci.org/grantmacken/nginx-exist.svg?branch=master)](https://travis-ci.org/grantmacken/nginx-exist)
+[tests](https://travis-ci.org/grantmacken/nginx-exist)
+ [![status](https://travis-ci.org/grantmacken/nginx-exist.svg)](
+ https://travis-ci.org/grantmacken/nginx-exists )
+
+
 
 Setting up eXist.
 -----------------
 
 WARNING! 
 back up your existing eXist deployment first.  
-The process is automated, it will wipe out your  `/usr/local/eXist` folder.
+The process is automated, it will wipe out your  `/usr/local/eXist` folder or
+whatever is nominated in the config file.
 
 ##Requirements##
 
 A modern Linux OS that uses `systemd`. I recommend  Ubuntu  15.10 onwards
 
-gnu make, expect, git, curl, wget, java 8( I'll add my install for this later) 
+gnu make, expect, git, curl, wget, java 8 ( I'll include my install script for this later) 
 
 ##Installing##
 
- On our local machine we will install eXist into /usr/local (see congfig)
- 
- /usr/local out of the box is owned by root, so I change this by
+ Install Location: On our local machine I install eXist into /usr/local (see congfig) 
+ /usr/local out of the box is owned by root, so I change this by `sudo chown -R $USER /usr/local`
+ otherwise you will have to run make as sudo. Alternatively in config change the install location 
+ of eXist to somewhere like '~/eXist'. 
+Note - this is what happens with the Travis build.
 
-'sudo chown -R $USER /usr/local'
+ On you ssh to your  remote VPS, you should be root so no need to sudo
 
-otherwise you will have to run make as sudo
-
- On your ssh remote VPS, you should be root so no need to sudox`make exist-install` 
+Install: cd into this directory a run `make`
 
 This will 
 
 1. establish the latest eXist version
 2. download latest eXist install jar
 3. create the expect install script to automate installation
-4. run the expect script to install exist to '/usr/local/eXist'
-5. create a systemd exist.service script and then enable and start the service 
+4. run the expect script to install exist to location nominated in config
+   defaults to '/usr/local/eXist'
+
+other make targets
+
+1. `sudo make exist-service` :  create a systemd exist.service script and then enable and start the service 
 
 ##Passwords and Permissions##
  
 Passwords: the default admin password is admin, however if there is a file in the ACCESS_TOKEN_PATH (see config) then our Makefile will use the content of that instead. I use my github access token because it reasonably long and easy to regenerate
 
-Permissions: When setting up eXist on our local machine, we have to install as sudo because we are
-changing system settings, however Makefile will change ownership back to to the user account.
-When running on our local machine the exist.service will run as user under the
-user group (see Makefile) and not as root. We want this so when eXist writes to
-file (e.g. logs) we have read access without dropping into sudo.
-
 On our VPS, the exist.service will run as root.
-
 
 Setting Up Nginx
 ----------------
