@@ -16,7 +16,7 @@ before_script:
     - cd $HOME/eXist
     - pwd
     - java -Djava.endorsed.dirs=lib/endorsed -Djava.net.preferIPv4Stack=true -jar start.jar jetty &
-    - sleep 10  
+    - sleep 30  
     - cat webapp/WEB-INF/logs/exist.log
     - curl -I 'http://127.0.0.1:8080/' 
     - curl -I 'http://127.0.0.1:8080/'
