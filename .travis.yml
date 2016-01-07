@@ -17,8 +17,7 @@ before_script:
     - pwd
     - java -Djava.endorsed.dirs=lib/endorsed -Djava.net.preferIPv4Stack=true -jar start.jar jetty &
     - sleep 10  
-    - cat webapp/WEB-INF/logs/exist.log | tail -1
-    - cat webapp/WEB-INF/logs/xmldb.log | tail -1
+    - cat webapp/WEB-INF/logs/exist.log
     - curl -I 'http://127.0.0.1:8080/' 
     - curl -I 'http://127.0.0.1:8080/'
     - sleep 10
