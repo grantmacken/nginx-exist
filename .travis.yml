@@ -18,10 +18,11 @@ before_script:
     - while [[ -z "$(curl -I -s -f 'http://127.0.0.1:8080/')" ]] ; do sleep 5 ; done
     - cat webapp/WEB-INF/logs/exist.log | tail -n 6
 script:
+    - cd $HOME
+    - pwd
+    - make test
     - cd $HOME/eXist
     - echo "$(echo 'sm:is-authenticated()' |  java -Djava.endorsed.dirs=lib/endorsed -jar start.jar client -sqx -u admin -P admin | tail -1)"
-    - cd $HOME
-    - prove
 after_script:
     - cd $HOME/eXist
     - java -Djava.endorsed.dirs=lib/endorsed -jar start.jar shutdown -u admin -p admin

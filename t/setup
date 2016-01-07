@@ -9,6 +9,7 @@ BASHLIB="$(
  find $TEST_MORE_PATH -type d |
  grep -E '/(bin|lib)$' |
  xargs -n1 printf "%s:")"
-PATH="$BASHLIB$PATH"
 
+PATH="$BASHLIB$PATH"
+source config
 source bash+ :std

@@ -53,7 +53,7 @@ JAVA := $(shell which java)
 START_JAR := $(JAVA) -Djava.endorsed.dirs=lib/endorsed -jar start.jar
 EXPECT := $(shell which expect)
 
-.PHONY: help
+.PHONY: help test
 
 # @$(if $(SUDO_USER),$(info do something),$(info do not do anything))
 
@@ -64,7 +64,10 @@ help:
 	ls -al /usr/local
 	ls -al /usr/local/lib
 	ls -al /usr/local/bin
-	ls -al /usr/local/share
+	ls -al /usr/local/share  
+
+test:
+	prove $(PROVEOPT:%=% )t/
 
 $(EXIST_VERSION):  config
 	@echo "## $(notdir $@) ##"

@@ -34,7 +34,6 @@ isAuthenticated  = $(shell echo "$$(cd $(EXIST_HOME);\
  $(call cmdExistClient,$(1),$(2)) | \
  tail -1 )")
 
-
 $(EXIST_PASS):
 	@echo "## $(notdir $@) ##"
 	@$(call assert-file-present,$(ACCESS_TOKEN_PATH))
