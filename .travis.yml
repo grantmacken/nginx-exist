@@ -7,9 +7,9 @@ addons:
     apt:
         packages:
         - expect
+        - make-4.0
 before_install:
 - which java
-- sudo apt-get update make
 - which prove
 - which make
 - echo "install latest eXist release"
