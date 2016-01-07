@@ -9,6 +9,8 @@ addons:
         - expect
 before_install:
 - echo "install latest eXist release"
+- git clone https://github.com/ingydotnet/test-more-bash.git 
+- ls -al .
 - touch config
 install:
     - make build

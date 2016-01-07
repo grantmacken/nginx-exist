@@ -37,9 +37,10 @@ The install is run on Travis
 [![Build Status](https://travis-ci.org/grantmacken/nginx-exist.svg?branch=master)](https://travis-ci.org/grantmacken/nginx-exist)
 <br/>[tests](https://travis-ci.org/grantmacken/nginx-exist)
  [![status](https://travis-ci.org/grantmacken/nginx-exist.svg)](
- https://travis-ci.org/grantmacken/nginx-exists )
+ https://travis-ci.org/grantmacken/nginx-exist )
 
-
+test are in the t directory. Tests use tap output, using  prove.
+Test are written, in bash using test-more-bash 
 
 Setting up eXist.
 -----------------
