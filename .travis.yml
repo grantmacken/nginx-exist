@@ -9,7 +9,7 @@ addons:
         - expect
 before_install:
 - which java
-- which expect
+- sudo apt-get update make
 - which prove
 - which make
 - echo "install latest eXist release"
