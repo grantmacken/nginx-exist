@@ -35,7 +35,7 @@ settings.
 The install is run on Travis
 
 [![Build Status](https://travis-ci.org/grantmacken/nginx-exist.svg?branch=master)](https://travis-ci.org/grantmacken/nginx-exist)
-[tests](https://travis-ci.org/grantmacken/nginx-exist)
+<br/>[tests](https://travis-ci.org/grantmacken/nginx-exist)
  [![status](https://travis-ci.org/grantmacken/nginx-exist.svg)](
  https://travis-ci.org/grantmacken/nginx-exists )
 
