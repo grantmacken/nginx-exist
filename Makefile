@@ -109,19 +109,24 @@ $(TEMP_DIR)/eXist.expect: $(TEMP_DIR)/wget-eXist.log
 	$(file >> $(@), wait )
 	$(file >> $(@), exit )
 	$(file >> $(@),} )
+	@ls -al $(@)
+	@cat $(@)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '-------------------------------------------------------------------'
 
 $(TEMP_DIR)/eXist-expect.log: $(TEMP_DIR)/eXist.expect
 	@echo "## $(notdir $@) ##"
-	@$(if $(shell curl -I -s -f 'http://localhost:8080/' ),$(error detected eXist already running),)
+	@echo "$(EXIST_HOME)"
+	@cat $(<)
+	@$(if $(shell curl -I -s -f 'http://localhost:8080/' ),\
+ $(error detected eXist already running),)
 	@echo 'remove any exiting eXist instalation'
 	@if [ -d $(EXIST_HOME) ] ;then rm -R $(EXIST_HOME) ;fi
 	@echo 'make eXist dir and reset permissions back to user'
 	@mkdir -p $(EXIST_HOME)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(EXIST_HOME),)
 	@echo "Install eXist via expect script. Be Patient! this can take a few minutes"
-	@expect < $(<) | tee $@ 2>&1
+	@expect < $(<) > $(@)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '-------------------------------------------------------------------'
 
