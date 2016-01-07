@@ -8,12 +8,13 @@ addons:
         packages:
         - expect
 before_install:
-- which java
-- which prove
-- which make
 - echo "install latest eXist release"
 - touch config
-install:
+install:        
     - make build
+before_script:
+    - cd eXist && java -Djava.endorsed.dirs=lib/endorsed -jar start.jar jetty & 
 script:
     - true
+before_script:
+    - cd eXist && java -Djava.endorsed.dirs=lib/endorsed -jar start.jar shutdown -u admin -p admin 
