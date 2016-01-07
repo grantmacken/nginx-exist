@@ -1,5 +1,4 @@
 
-ifeq ($(SUDO_USER),)
 cmdExistClient = java -jar $(EXIST_HOME)/start.jar client -sqx -u $(1) -P $(2)
 smFindUsersByUsername = sm$(:)find-users-by-username('$(1)')
 smFindGroupsByGroupname = sm$(:)find-groups-by-groupname('$(1)')
@@ -34,8 +33,6 @@ isAuthenticated  = $(shell echo "$$(cd $(EXIST_HOME);\
  echo 'sm:is-authenticated()' |\
  $(call cmdExistClient,$(1),$(2)) | \
  tail -1 )")
-
-endif
 
 
 $(EXIST_PASS):

@@ -19,7 +19,8 @@ before_script:
     - cat webapp/WEB-INF/logs/exist.log | tail -n 6
 script:
     - cd $HOME/eXist
-    - echo 'sm:is-authenticated()' |  java -Djava.endorsed.dirs=lib/endorsed -jar start.jar client -sqx -u admin -P admin
+    - echo "$(echo 'sm:is-authenticated()' |  java -Djava.endorsed.dirs=lib/endorsed -jar start.jar client -sqx -u admin -P admin | tail -1)"
+    - cd $HOME
     - prove
 after_script:
     - cd $HOME/eXist
