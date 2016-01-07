@@ -20,6 +20,7 @@ before_script:
 script:
     - cd $HOME/eXist
     - echo 'sm:is-authenticated()' |  java -Djava.endorsed.dirs=lib/endorsed -jar start.jar client -sqx -u admin -P admin
+    - prove
 after_script:
     - cd $HOME/eXist
     - java -Djava.endorsed.dirs=lib/endorsed -jar start.jar shutdown -u admin -p admin
