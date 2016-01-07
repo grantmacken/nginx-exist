@@ -20,8 +20,10 @@ $(colon) := :
 SUDO_USER := $(shell echo "$${SUDO_USER}")
 WHOAMI := $(shell whoami)
 INSTALLER := $(if $(SUDO_USER),$(SUDO_USER),$(WHOAMI))
+MAKE_VERSION := $(shell make --version | head -1)
+$(info  - $(SUDO_USER))
 $(info SUDO USER - $(SUDO_USER))
-$(info Who Am I - $(WHOAMI))
+$(info make version - $(MAKE_VERSION))
 TEMP_DIR=.temp
 ifeq ($(WHOAMI),travis)
 EXIST_HOME = $(HOME)/eXist
