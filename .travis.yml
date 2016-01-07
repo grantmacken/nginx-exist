@@ -14,21 +14,12 @@ install:
     - make build
 before_script:
     - cd $HOME/eXist
-    - pwd
     - java -Djava.endorsed.dirs=lib/endorsed -Djava.net.preferIPv4Stack=true -jar start.jar jetty &
-    - sleep 30  
-    - cat webapp/WEB-INF/logs/exist.log
-    - curl -I 'http://127.0.0.1:8080/' 
-    - curl -I 'http://127.0.0.1:8080/'
-    - sleep 10
-    - curl -I 'http://127.0.0.1:8080/'
+    - while [[ -z "$(curl -I -s -f 'http://127.0.0.1:8080/')" ]] ; do sleep 5 ; done
+    - cat webapp/WEB-INF/logs/exist.log | tail -n 6
 script:
-    - curl -I -s -f 'http://localhost:8080/'
-    - sleep 2
-    - curl -I 'http://localhost:8080/'
     - cd $HOME/eXist
     - echo 'sm:is-authenticated()' |  java -Djava.endorsed.dirs=lib/endorsed -jar start.jar client -sqx -u admin -P admin
 after_script:
     - cd $HOME/eXist
-    - pwd
     - java -Djava.endorsed.dirs=lib/endorsed -jar start.jar shutdown -u admin -p admin
