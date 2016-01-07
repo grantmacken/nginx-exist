@@ -21,9 +21,12 @@ SUDO_USER := $(shell echo "$${SUDO_USER}")
 WHOAMI := $(shell whoami)
 INSTALLER := $(if $(SUDO_USER),$(SUDO_USER),$(WHOAMI))
 MAKE_VERSION := $(shell make --version | head -1)
-$(info  - $(SUDO_USER))
+SYSTEMD := $(shell ps -p1 | grep systemd )
+$(info who am i - $(WHOAMI))
 $(info SUDO USER - $(SUDO_USER))
 $(info make version - $(MAKE_VERSION))
+$(info system - $(SYSTEMD))
+$(info current working directory - $(shell pwd))
 TEMP_DIR=.temp
 ifeq ($(WHOAMI),travis)
 EXIST_HOME = $(HOME)/eXist
@@ -48,10 +51,7 @@ EXIST_JAR_PATH = $(TEMP_DIR)/$(call cat,$(EXIST_VERSION))
 #shortcuts
 JAVA := $(shell which java)
 START_JAR := $(JAVA) -Djava.endorsed.dirs=lib/endorsed -jar start.jar
-
 EXPECT := $(shell which expect)
-
-installer := $(if $(SUDO_USER),$(SUDO_USER),$(WHOAMI))
 
 .PHONY: help
 
@@ -114,7 +114,7 @@ $(TEMP_DIR)/eXist.expect: $(TEMP_DIR)/wget-eXist.log
 	@echo ' exit'  >> $(@)
 	@echo '}'  >> $(@)
 	@ls -al $(@)
-	@cat $(@)
+	@cat $(@)                                 
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@chmod +x $(@)
 	@echo '-------------------------------------------------------------------'

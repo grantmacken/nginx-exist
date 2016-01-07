@@ -13,8 +13,12 @@ before_install:
 install:        
     - make build
 before_script:
-    - cd eXist && java -Djava.endorsed.dirs=lib/endorsed -jar start.jar jetty & 
+    - cd $HOME/eXist 
+    - pwd
+    - java -Djava.endorsed.dirs=lib/endorsed -jar start.jar jetty & 
 script:
     - true
 before_script:
-    - cd eXist && java -Djava.endorsed.dirs=lib/endorsed -jar start.jar shutdown -u admin -p admin 
+    - cd $HOME/eXist 
+    - pwd
+    - java -Djava.endorsed.dirs=lib/endorsed -jar start.jar shutdown -u admin -p admin 
