@@ -87,8 +87,10 @@ $(TEMP_DIR)/wget-eXist.log: $(EXIST_VERSION)
 	@echo "EXIST_JAR_PATH: $(call EXIST_JAR_PATH)"
 	@echo "Downloading $(call EXIST_JAR). Be Patient! this can take a few minutes"
 	@wget -o $@ -O "$(call EXIST_JAR_PATH)" \
- --trust-server-name  --progress=dot$(:)mega  \
- "$(EXIST_DOWNLOAD_SOURCE)/$(call EXIST_JAR)"
+ --trust-server-name  --progress=dot$(:)mega -nc \
+ "$(EXIST_DOWNLOAD_SOURCE)/$(call EXIST_JAR)" 
+	echo '# because we use wget with no clobber, if we have source then just touch log'
+	@if [[ -e  $(EXIST_DOWNLOAD_SOURCE)/$(call EXIST_JAR) ]]; then touch $(@);fi )
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@cat $@
 	@echo '-------------------------------------------------------------------'
