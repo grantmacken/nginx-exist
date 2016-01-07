@@ -10,15 +10,15 @@ addons:
 before_install:
 - echo "install latest eXist release"
 - touch config
-install:        
+install:
     - make build
 before_script:
-    - cd $HOME/eXist 
+    - cd $HOME/eXist
     - pwd
-    - java -Djava.endorsed.dirs=lib/endorsed -jar start.jar jetty & 
+    - java -Djava.endorsed.dirs=lib/endorsed -jar start.jar jetty &
 script:
     - true
 before_script:
-    - cd $HOME/eXist 
+    - cd $HOME/eXist
     - pwd
-    - java -Djava.endorsed.dirs=lib/endorsed -jar start.jar shutdown -u admin -p admin 
+    - java -Djava.endorsed.dirs=lib/endorsed -jar start.jar shutdown -u admin -p admin
