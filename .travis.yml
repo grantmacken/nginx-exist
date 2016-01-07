@@ -15,10 +15,13 @@ install:
 before_script:
     - cd $HOME/eXist
     - pwd
-    - java -Djava.endorsed.dirs=lib/endorsed -jar start.jar jetty &
+    - java -Djava.endorsed.dirs=lib/endorsed -jar start.jar jetty & 
+    - sleep 3
 script:
-    - true
-before_script:
+    - curl -I -s -f 'http://localhost:8080/' 
+    - cd $HOME/eXist
+    - echo 'sm:is-authenticated()' |  java -Djava.endorsed.dirs=lib/endorsed -jar start.jar client -sqx -u admin -P admin
+after_script:
     - cd $HOME/eXist
     - pwd
     - java -Djava.endorsed.dirs=lib/endorsed -jar start.jar shutdown -u admin -p admin
