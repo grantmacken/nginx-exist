@@ -47,6 +47,8 @@ EXIST_JAR_PATH = $(TEMP_DIR)/$(call cat,$(EXIST_VERSION))
 JAVA := $(shell which java)
 START_JAR := $(JAVA) -Djava.endorsed.dirs=lib/endorsed -jar start.jar
 
+EXPECT := $(shell which expect)
+
 installer := $(if $(SUDO_USER),$(SUDO_USER),$(WHOAMI))
 
 .PHONY: help
@@ -91,7 +93,7 @@ $(TEMP_DIR)/eXist.expect: $(TEMP_DIR)/wget-eXist.log
 	@echo "## $(notdir $@) ##"
 	@echo 'we have $(call EXIST_JAR)'
 	@echo 'creating expect file'
-	$(file > $(@),#!/usr/bin/expect )
+	$(file > $(@),#!$(EXPECT) -f )
 	$(if $(SUDO_USER),\
  $(file >> $(@),spawn su -c "java -jar $(call EXIST_JAR_PATH) -console" -s /bin/sh $(INSTALLER) ),\
  $(file >> $(@),spawn java -jar $(call EXIST_JAR_PATH) -console))
@@ -112,6 +114,7 @@ $(TEMP_DIR)/eXist.expect: $(TEMP_DIR)/wget-eXist.log
 	@ls -al $(@)
 	@cat $(@)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
+	@chmod +x $(@)
 	@echo '-------------------------------------------------------------------'
 
 $(TEMP_DIR)/eXist-expect.log: $(TEMP_DIR)/eXist.expect
@@ -126,7 +129,7 @@ $(TEMP_DIR)/eXist-expect.log: $(TEMP_DIR)/eXist.expect
 	@mkdir -p $(EXIST_HOME)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(EXIST_HOME),)
 	@echo "Install eXist via expect script. Be Patient! this can take a few minutes"
-	@expect < $(<) > $(@)
+	@$(<) | tee $(@)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '-------------------------------------------------------------------'
 
