@@ -44,8 +44,8 @@ The install is run on Travis
 Setting up eXist.
 -----------------
 
-WARNING! 
-back up your existing eXist deployment first.  
+WARNING!
+back up your existing eXist deployment first.
 The process is automated, it will wipe out your  `/usr/local/eXist` folder or
 whatever is nominated in the config file.
 
@@ -53,21 +53,21 @@ whatever is nominated in the config file.
 
 A modern Linux OS that uses `systemd`. I recommend  Ubuntu  15.10 onwards
 
-gnu make, expect, git, curl, wget, java 8 ( I'll include my install script for this later) 
+gnu make, expect, git, curl, wget, java 8 ( I'll include my install script for this later)
 
 ##Installing##
 
- Install Location: On our local machine I install eXist into /usr/local (see congfig) 
+ Install Location: On our local machine I install eXist into /usr/local (see congfig)
  /usr/local out of the box is owned by root, so I change this by `sudo chown -R $USER /usr/local`
- otherwise you will have to run make as sudo. Alternatively in config change the install location 
- of eXist to somewhere like '~/eXist'. 
+ otherwise you will have to run make as sudo. Alternatively in config change the install location
+ of eXist to somewhere like '~/eXist'.
 Note - this is what happens with the Travis build.
 
  On you ssh to your  remote VPS, you should be root so no need to sudo
 
 Install: cd into this directory a run `make`
 
-This will 
+This will
 
 1. establish the latest eXist version
 2. download latest eXist install jar
@@ -77,10 +77,10 @@ This will
 
 other make targets
 
-1. `sudo make exist-service` :  create a systemd exist.service script and then enable and start the service 
+1. `sudo make exist-service` :  create a systemd exist.service script and then enable and start the service
 
 ##Passwords and Permissions##
- 
+
 Passwords: the default admin password is admin, however if there is a file in the ACCESS_TOKEN_PATH (see config) then our Makefile will use the content of that instead. I use my github access token because it reasonably long and easy to regenerate
 
 On our VPS, the exist.service will run as root.
