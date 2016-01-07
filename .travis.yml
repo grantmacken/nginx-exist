@@ -16,14 +16,17 @@ before_script:
     - cd $HOME/eXist
     - pwd
     - java -Djava.endorsed.dirs=lib/endorsed -Djava.net.preferIPv4Stack=true -jar start.jar jetty &
-    - sleep 10
+    - sleep 10  
+    - cat webapp/WEB-INF/logs/exist.log | tail -1
+    - cat webapp/WEB-INF/logs/xmldb.log | tail -1
     - curl -I 'http://127.0.0.1:8080/' 
+    - curl -I 'http://127.0.0.1:8080/'
     - sleep 10
-    - curl -I 'http://127.0.0.1:8080/' 
+    - curl -I 'http://127.0.0.1:8080/'
 script:
-    - curl -I -s -f 'http://localhost:8080/' 
+    - curl -I -s -f 'http://localhost:8080/'
     - sleep 2
-    - curl -I 'http://localhost:8080/' 
+    - curl -I 'http://localhost:8080/'
     - cd $HOME/eXist
     - echo 'sm:is-authenticated()' |  java -Djava.endorsed.dirs=lib/endorsed -jar start.jar client -sqx -u admin -P admin
 after_script:
