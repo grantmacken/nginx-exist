@@ -4,3 +4,6 @@ EXIST_HOME=/usr/local/eXist
 EXIST_DATA_DIR=webapp/WEB-INF/data
 ACCESS_TOKEN_PATH=../.access-token
 TEMP_DIR=.temp
+NGINX_HOME=/usr/local/nginx
+NGINX_URL=http://nginx.org
+NGINX_DOWNLOAD=http://nginx.org/download

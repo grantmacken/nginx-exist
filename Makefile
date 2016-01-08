@@ -54,7 +54,9 @@ START_JAR := $(JAVA) -Djava.endorsed.dirs=lib/endorsed -jar start.jar
 EXPECT := $(shell which expect)
 PROVE := $(shell which prove)
 
+
 default: build
+
 
 .PHONY: help test
 
@@ -64,12 +66,10 @@ build:  $(TEMP_DIR)/eXist-expect.log
 
 exist-service:  $(TEMP_DIR)/exist.service
 
+include includes/nginx-install.mk
+
 help:
 	$(info install exist)
-	ls -al /usr/local
-	ls -al /usr/local/lib
-	ls -al /usr/local/bin
-	ls -al /usr/local/share
 
 test:
 	@$(PROVE) $(abspath t/test.t)

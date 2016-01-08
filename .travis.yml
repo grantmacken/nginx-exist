@@ -5,25 +5,20 @@ addons:
     apt:
         packages:
         - expect
-before_install:
-- echo "install latest eXist release"
-- git clone https://github.com/ingydotnet/test-more-bash.git 
-- ls -al .
-- touch config
+before-install:
+    - true
 install:
-    - make build
+    - true
 before_script:
-    - cd $HOME/eXist
-    - java -Djava.endorsed.dirs=lib/endorsed -Djava.net.preferIPv4Stack=true -jar start.jar jetty &
-    - while [[ -z "$(curl -I -s -f 'http://127.0.0.1:8080/')" ]] ; do sleep 5 ; done
-    - cat webapp/WEB-INF/logs/exist.log | tail -n 6
-    - cd ../
-    - pwd
+- git clone https://github.com/ingydotnet/test-more-bash.git 
 script:
-    - pwd
-    - make test
-    - cd $HOME/eXist
-    - echo "$(echo 'sm:is-authenticated()' |  java -Djava.endorsed.dirs=lib/endorsed -jar start.jar client -sqx -u admin -P admin | tail -1)"
+- make build
+- cd $HOME/eXist
+- java -Djava.endorsed.dirs=lib/endorsed -Djava.net.preferIPv4Stack=true -jar start.jar jetty &
+- while [[ -z "$(curl -I -s -f 'http://127.0.0.1:8080/')" ]] ; do sleep 5 ; done
+- cd ../
+- pwd
 after_script:
-    - cd $HOME/eXist
-    - java -Djava.endorsed.dirs=lib/endorsed -jar start.jar shutdown -u admin -p admin
+- cat webapp/WEB-INF/logs/exist.log | tail -n 5
+- cd $HOME/eXist
+- java -Djava.endorsed.dirs=lib/endorsed -jar start.jar shutdown -u admin -p admin
