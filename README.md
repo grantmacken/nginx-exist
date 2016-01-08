@@ -12,11 +12,11 @@ the reasons given by [Mike Bostock](http://bost.ocks.org/mike/make/)
 Server
 
 **eXist-db** provides a XML document-oriented schema-less data-store and an
-xQuery engine to access and serve this data
+XQuery engine to access and serve this data
 
 -------------------------------------------------------------------------------
 
-Nginx The Web Server, Exist The XML Application Server
+Nginx The Web Server, eXist The XML Application Server
 ------------------------------------------------------
 
 The projects purpose is to help users set up Nginx as as a for eXist-db
