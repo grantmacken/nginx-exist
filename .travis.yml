@@ -10,4 +10,4 @@ before-install:
 install:
 - make && ./.temp/run.sh
 script:
-- prove
+- prove -v

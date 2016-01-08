@@ -1,15 +1,18 @@
  #!/usr/bin/env bash 
-if [[ $USER = travis ]]  ; then
-TEST_MORE_PATH='test-more-bash'
+source config
+if [[ $USER = travis ]] ; then
+EXIST_HOME=eXist
+P=admin
 else
-TEST_MORE_PATH='../bin/ext/test-more-bash'
+if [ -e ${ACCESS_TOKEN_PATH} ] ;then P="$(<${ACCESS_TOKEN_PATH})";fi
 fi
 
+TEST_MORE_PATH='test-more-bash'
 BASHLIB="$(
  find $TEST_MORE_PATH -type d |
  grep -E '/(bin|lib)$' |
  xargs -n1 printf "%s:")"
 
 PATH="$BASHLIB$PATH"
-source config
+
 source bash+ :std
