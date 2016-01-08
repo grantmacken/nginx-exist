@@ -16,7 +16,7 @@ XQuery engine to access and serve this data
 
 -------------------------------------------------------------------------------
 
-Nginx The Web Server, Exist The XML Application Server
+Nginx The Web Server, eXist The XML Application Server
 ------------------------------------------------------
 
 The projects purpose is to help users set up Nginx as as a for eXist-db
