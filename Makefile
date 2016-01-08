@@ -72,7 +72,7 @@ help:
 	ls -al /usr/local/share
 
 test:
-	prove $(PROVEOPT:%=% )t/
+	@$(PROVE) $(abspath t/test.t)
 
 $(EXIST_VERSION):  config
 	@echo "## $(notdir $@) ##"
@@ -143,7 +143,7 @@ $(TEMP_DIR)/eXist-expect.log: $(TEMP_DIR)/eXist.expect
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '-------------------------------------------------------------------'
 
-$(TEMP_DIR)/exist.service: $(TEMP_DIR)/eXist-expect.log  
+$(TEMP_DIR)/exist.service: $(TEMP_DIR)/eXist-expect.log
 	@echo "## $(notdir $@) ##"
 	$(if $(shell ps -p1 | grep systemd ),\
  $(info  OK init system is systemd),\

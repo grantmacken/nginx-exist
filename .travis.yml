@@ -17,8 +17,9 @@ before_script:
     - java -Djava.endorsed.dirs=lib/endorsed -Djava.net.preferIPv4Stack=true -jar start.jar jetty &
     - while [[ -z "$(curl -I -s -f 'http://127.0.0.1:8080/')" ]] ; do sleep 5 ; done
     - cat webapp/WEB-INF/logs/exist.log | tail -n 6
+    - cd ../
+    - pwd
 script:
-    - cd $HOME
     - pwd
     - make test
     - cd $HOME/eXist
