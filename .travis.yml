@@ -6,7 +6,7 @@ addons:
         packages:
         - expect
 before-install:
-- git clone https://github.com/ingydotnet/test-more-bash.git 
+- true
 install:
 - make && ./.temp/run.sh
 script:
