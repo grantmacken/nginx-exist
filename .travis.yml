@@ -18,6 +18,7 @@ script:
 - while [[ -z "$(curl -I -s -f 'http://127.0.0.1:8080/')" ]] ; do sleep 5 ; done
 - cd ../
 - pwd
+- make test
 after_script:
 - cat webapp/WEB-INF/logs/exist.log | tail -n 5
 - cd $HOME/eXist
