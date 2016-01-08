@@ -1,7 +1,7 @@
  #!/usr/bin/env bash 
 source config
 if [[ $USER = travis ]] ; then
-EXIST_HOME=eXist
+EXIST_HOME=/home/travis/eXist
 P=admin
 else
 if [ -e ${ACCESS_TOKEN_PATH} ] ;then P="$(<${ACCESS_TOKEN_PATH})";fi
