@@ -62,7 +62,7 @@ default: build
 
 # @$(if $(SUDO_USER),$(info do something),$(info do not do anything))
 
-build:  $(TEMP_DIR)/eXist-expect.log
+build:  $(TEMP_DIR)/run.sh
 
 exist-service:  $(TEMP_DIR)/exist.service
 
@@ -92,7 +92,7 @@ $(TEMP_DIR)/wget-eXist.log: $(EXIST_VERSION)
 	@echo "EXIST_JAR_PATH: $(call EXIST_JAR_PATH)"
 	@echo "Downloading $(call EXIST_JAR). Be Patient! this can take a few minutes"
 	@wget -o $@ -O "$(call EXIST_JAR_PATH)" \
- --trust-server-name  --progress=dot$(:)mega \
+ --trust-server-name  --progress=dot$(:)mega -nc \
  "$(EXIST_DOWNLOAD_SOURCE)/$(call EXIST_JAR)"
 	echo '# because we use wget with no clobber, if we have source then just touch log'
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
@@ -142,6 +142,17 @@ $(TEMP_DIR)/eXist-expect.log: $(TEMP_DIR)/eXist.expect
 	@$(<) | tee $(@)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '-------------------------------------------------------------------'
+
+$(TEMP_DIR)/run.sh: $(TEMP_DIR)/eXist-expect.log
+	@echo "## $(notdir $@) ##"
+	@echo '#!/usr/bin/env bash' > $(@)
+	@echo 'cd $(EXIST_HOME)' >> $(@)
+	@echo 'java -Djava.endorsed.dirs=lib/endorsed -Djava.net.preferIPv4Stack=true -jar start.jar jetty &' >> $(@)
+	@echo 'while [[ -z "$$(curl -I -s -f 'http://127.0.0.1:8080/')" ]] ; do sleep 5 ; done' >> $(@)
+	@chmod +x $(@)
+	@echo '-------------------------------------------------------------------'
+
+
 
 $(TEMP_DIR)/exist.service: $(TEMP_DIR)/eXist-expect.log
 	@echo "## $(notdir $@) ##"
