@@ -52,6 +52,7 @@ EXIST_JAR_PATH = $(TEMP_DIR)/$(call cat,$(EXIST_VERSION))
 JAVA := $(shell which java)
 START_JAR := $(JAVA) -Djava.endorsed.dirs=lib/endorsed -jar start.jar
 EXPECT := $(shell which expect)
+PROVE := $(shell which prove)
 
 default: build
 
