@@ -32,18 +32,18 @@ settings.
 
 ##Testing 1, 2, 3
 
-The install is run on [Travis](https://travis-ci.org/grantmacken/nginx-exist)
+The install is run on [Travis-ci](https://travis-ci.org/grantmacken/nginx-exist)
  [![status](https://travis-ci.org/grantmacken/nginx-exist.svg)](
  https://travis-ci.org/grantmacken/nginx-exist )
 
-Tests are in the t directory. Tests are invoked using prove, use tap output.
+Tests are in the t directory. Tests are invoked using `prove -v` and use tap output.
 Test are written in bash using test-more-bash. 
 
 Setting up eXist.
 -----------------
 
 WARNING!
-back up your existing eXist deployment first.
+Backup your existing eXist deployment first.
 The process is automated, it will wipe out your  `/usr/local/eXist` folder or
 whatever is nominated in the config file.
 

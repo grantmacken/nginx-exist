@@ -74,7 +74,7 @@ help:
 test:
 	@$(PROVE) $(abspath t/test.t)
 
-$(EXIST_VERSION):  config
+$(EXIST_VERSION):  
 	@echo "## $(notdir $@) ##"
 	@if [ -d $(dir $@) ] ;then echo 'temp dir exists';else mkdir $(dir $@) ;fi
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $dir (@),)
