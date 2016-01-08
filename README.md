@@ -3,7 +3,7 @@ my setup for nginx as a reverse proxy for the  eXist database
 
 NOTE: At the mo I am reworking some old bash scripts into a single Makefile.
 If it gets to untidy I will add make includes. I am pretty new to Make, so feel
-few to point out a better way of doing things.  Why I choose Make, is outline in
+free to point out a better way of doing things.  Why I choose Make, is outlined in
 the reasons given by [Mike Bostock](http://bost.ocks.org/mike/make/)
 
 ---------------------------------------------------------------------------------
@@ -59,12 +59,10 @@ gnu make, expect, git, curl, wget, java 8 ( I'll include my install script for t
 ##Installing##
 
  Install Location: On our local machine I install eXist into /usr/local (see congfig)
- /usr/local out of the box is owned by root, so I change this by `sudo chown -R $USER /usr/local`
- otherwise you will have to run make as sudo. Alternatively in config change the install location
- of eXist to somewhere like '~/eXist'.
+ /usr/local out of the box is owned by root, so I change this by `sudo chown -R $USER /usr/local`  otherwise you will have to run make as sudo. Alternatively in config change the install location of eXist to somewhere like '~/eXist'.
 Note - this is what happens with the Travis build.
 
- On you ssh to your  remote VPS, you should be root so no need to sudo
+ When you ssh to your remote VPS, you should be root so no need to sudo
 
 Install: cd into this directory a run `make`
 
@@ -72,11 +70,11 @@ This will
 
 1. establish the latest eXist version
 2. download latest eXist install jar
-3. create the expect install script to automate installation
-4. run the expect script to install exist to location nominated in config
+3. create the expect install script. This is used to automate automate installation
+4. run the expect script to install eXist to location nominated in config
    defaults to '/usr/local/eXist'
 
-other make targets
+Other make targets
 
 1. `sudo make exist-service` :  create a systemd exist.service script and then enable and start the service
 
@@ -89,10 +87,9 @@ On our VPS, the exist.service will run as root.
 Setting Up Nginx
 ----------------
 
-The setup is capable of serving **multiple web-site domains** without altering the Nginx config every time you
-add a new site. The production server makes use Nginx proxy cache capabilities.
+The setup is capable of serving **multiple web-site domains** without altering the Nginx config every time you add a new site. The production server makes use Nginx proxy cache capabilities.
 
 The aim is to make it as simple as possible to set up local development and
-remote production server for hosting websites.
+remote production servers for hosting websites.
 
 `systemctl set-environment SERVER=development`
