@@ -12,7 +12,7 @@ the reasons given by [Mike Bostock](http://bost.ocks.org/mike/make/)
 Server
 
 **eXist-db** provides a XML document-oriented schema-less data-store and an
-xQuery engine to access and serve this data
+XQuery engine to access and serve this data
 
 -------------------------------------------------------------------------------
 
