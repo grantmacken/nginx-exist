@@ -53,18 +53,22 @@ JAVA := $(shell which java)
 START_JAR := $(JAVA) -Djava.endorsed.dirs=lib/endorsed -jar start.jar
 EXPECT := $(shell which expect)
 
+default: build
+
 .PHONY: help test
 
 # @$(if $(SUDO_USER),$(info do something),$(info do not do anything))
 
 build:  $(TEMP_DIR)/eXist-expect.log
 
+exist-service:  $(TEMP_DIR)/exist.service
+
 help:
 	$(info install exist)
 	ls -al /usr/local
 	ls -al /usr/local/lib
 	ls -al /usr/local/bin
-	ls -al /usr/local/share  
+	ls -al /usr/local/share
 
 test:
 	prove $(PROVEOPT:%=% )t/
@@ -87,10 +91,9 @@ $(TEMP_DIR)/wget-eXist.log: $(EXIST_VERSION)
 	@echo "EXIST_JAR_PATH: $(call EXIST_JAR_PATH)"
 	@echo "Downloading $(call EXIST_JAR). Be Patient! this can take a few minutes"
 	@wget -o $@ -O "$(call EXIST_JAR_PATH)" \
- --trust-server-name  --progress=dot$(:)mega -nc \
- "$(EXIST_DOWNLOAD_SOURCE)/$(call EXIST_JAR)" 
+ --trust-server-name  --progress=dot$(:)mega \
+ "$(EXIST_DOWNLOAD_SOURCE)/$(call EXIST_JAR)"
 	echo '# because we use wget with no clobber, if we have source then just touch log'
-	@if [[ -e  $(EXIST_DOWNLOAD_SOURCE)/$(call EXIST_JAR) ]]; then touch $(@);fi )
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@cat $@
 	@echo '-------------------------------------------------------------------'
@@ -139,3 +142,31 @@ $(TEMP_DIR)/eXist-expect.log: $(TEMP_DIR)/eXist.expect
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '-------------------------------------------------------------------'
 
+$(TEMP_DIR)/exist.service: $(TEMP_DIR)/eXist-expect.log  
+	@echo "## $(notdir $@) ##"
+	$(if $(shell ps -p1 | grep systemd ),\
+ $(info  OK init system is systemd),\
+ $(error init system is not systemd) )
+	@$(call assert-is-root)
+	@systemctl is-failed exist.service > /dev/null && echo 'OK! unit intentionally stopped'
+	$(file > $(@),[Unit])
+	$(file >> $(@),Description=The exist db application server)
+	$(file >> $(@),After=network.target)
+	$(file >> $(@),)
+	$(file >> $(@),[Service])
+	$(file >> $(@),Environment="EXIST_HOME=$(EXIST_HOME)")
+	$(file >> $(@),$(if $(SUDO_USER),Environment="SERVER=development",Environment="SERVER=production"))
+	$(file >> $(@),WorkingDirectory=$(EXIST_HOME))
+	$(file >> $(@),User=$(INSTALLER))
+	$(file >> $(@),Group=$(INSTALLER))
+	$(file >> $(@),ExecStart=$(START_JAR) jetty)
+	$(file >> $(@),ExecStop=$(START_JAR) shutdown -u admin -p $(P) )
+	$(file >> $(@),)
+	$(file >> $(@),[Install])
+	$(file >> $(@),WantedBy=multi-user.target)
+	@cp $@ /lib/systemd/system/$(notdir $@)
+	@systemd-analyze verify $(notdir $@)
+	@systemctl enable  $(notdir $@)
+	@systemctl start  $(notdir $@)
+	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
+	@echo '-------------------------------------------------------------------'

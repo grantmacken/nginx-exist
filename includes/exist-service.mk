@@ -1,6 +1,5 @@
 
-
-$(EXIST_SERVICE): $(EXPECT_LOG)
+$(TEMP_DIR)/exist.service: $(TEMP_DIR)/eXist-expect.log  
 	$(if $(shell ps -p1 | grep systemd ),\
  $(info  OK init system is systemd),\
  $(error init system is not systemd) )
