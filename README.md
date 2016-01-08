@@ -23,7 +23,7 @@ The projects purpose is to help users set up Nginx as as a for eXist-db
 application server for both local development and remote production.
 
 It is assumed that the remote server will be a cheap VPS (virtual private
-server) provided by a  site hosting provider. I use a local one
+server) provided by a site hosting provider. I use a local one
 <http://site-host.co.nz> at the cost of about $30 per month.
 
 Included is the Makefile I will be using to set up such local development
@@ -32,15 +32,12 @@ settings.
 
 ##Testing 1, 2, 3
 
-The install is run on Travis
-
-[![Build Status](https://travis-ci.org/grantmacken/nginx-exist.svg?branch=master)](https://travis-ci.org/grantmacken/nginx-exist)
-<br/>[tests](https://travis-ci.org/grantmacken/nginx-exist)
+The install is run on [Travis](https://travis-ci.org/grantmacken/nginx-exist)
  [![status](https://travis-ci.org/grantmacken/nginx-exist.svg)](
  https://travis-ci.org/grantmacken/nginx-exist )
 
-test are in the t directory. Tests use tap output, using  prove.
-Test are written, in bash using test-more-bash 
+Tests are in the t directory. Tests are invoked using prove, use tap output.
+Test are written in bash using test-more-bash. 
 
 Setting up eXist.
 -----------------
@@ -70,7 +67,7 @@ This will
 
 1. establish the latest eXist version
 2. download latest eXist install jar
-3. create the expect install script. This is used to automate automate installation
+3. create the expect install script. This is used to automate installation
 4. run the expect script to install eXist to location nominated in config
    defaults to '/usr/local/eXist'
 

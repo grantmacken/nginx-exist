@@ -1,11 +1,10 @@
- #!/usr/bin/env bash
+#!/usr/bin/env bash
 source t/setup
 use Test::More
 
 plan tests 3
 
 note "test plan for ngnix-exist"
-note ""
 
 ok "$( [ -n ${EXIST_HOME} ] )"  "eXist home set: ${EXIST_HOME}"
 
