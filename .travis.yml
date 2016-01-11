@@ -8,7 +8,7 @@ addons:
 before-install:
 - true
 install:
-- make
+- sudo make
 - sudo ./.temp/nginx-run.sh
 script:
 - prove -v
