@@ -52,7 +52,7 @@ default: build
 
 .PHONY: help test
 
-build: $(TEMP_DIR)/eXist-run.sh $(TEMP_DIR)/nginx-run.sh
+build: $(TEMP_DIR)/eXist-run.sh
 
 exist-service:  $(TEMP_DIR)/exist.service
 
