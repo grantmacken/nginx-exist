@@ -48,7 +48,10 @@ P := $(if $(ACCESS_TOKEN),$(ACCESS_TOKEN),admin)
 
 PROVE := $(shell which prove)
 
-default: build
+default: build  
+
+include includes/eXist-install.mk
+include includes/nginx-install.mk
 
 .PHONY: help test
 
@@ -62,6 +65,4 @@ help:
 test:
 	@$(PROVE) $(abspath t/test.t)
 
-include includes/eXist-install.mk
-include includes/nginx-install.mk
 
