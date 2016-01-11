@@ -48,7 +48,7 @@ P := $(if $(ACCESS_TOKEN),$(ACCESS_TOKEN),admin)
 
 PROVE := $(shell which prove)
 
-default: build  
+default: build
 
 include includes/eXist-install.mk
 include includes/nginx-install.mk

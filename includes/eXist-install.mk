@@ -77,7 +77,7 @@ $(TEMP_DIR)/eXist-expect.log: $(TEMP_DIR)/eXist.expect
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '-------------------------------------------------------------------'
 
-$(TEMP_DIR)/run.sh: $(TEMP_DIR)/eXist-expect.log
+$(TEMP_DIR)/eXist-run.sh: $(TEMP_DIR)/eXist-expect.log
 	@echo "## $(notdir $@) ##"
 	@echo '#!/usr/bin/env bash' > $(@)
 	@echo 'cd $(EXIST_HOME)' >> $(@)
