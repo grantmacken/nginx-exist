@@ -9,5 +9,6 @@ before-install:
 - true
 install:
 - make && ./.temp/run.sh
+- sudo ./.temp/run-nginx.sh
 script:
 - prove -v

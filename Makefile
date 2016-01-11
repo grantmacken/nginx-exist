@@ -54,19 +54,13 @@ START_JAR := $(JAVA) -Djava.endorsed.dirs=lib/endorsed -jar start.jar
 EXPECT := $(shell which expect)
 PROVE := $(shell which prove)
 
-
 default: build
-
 
 .PHONY: help test
 
-# @$(if $(SUDO_USER),$(info do something),$(info do not do anything))
-
-build:  $(TEMP_DIR)/run.sh
+build: $(TEMP_DIR)/run.sh $(TEMP_DIR)/run-nginx.sh
 
 exist-service:  $(TEMP_DIR)/exist.service
-
-include includes/nginx-install.mk
 
 help:
 	$(info install exist)
@@ -74,7 +68,9 @@ help:
 test:
 	@$(PROVE) $(abspath t/test.t)
 
-$(EXIST_VERSION):  
+include includes/nginx-install.mk
+
+$(EXIST_VERSION):
 	@echo "## $(notdir $@) ##"
 	@if [ -d $(dir $@) ] ;then echo 'temp dir exists';else mkdir $(dir $@) ;fi
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $dir (@),)
@@ -151,8 +147,6 @@ $(TEMP_DIR)/run.sh: $(TEMP_DIR)/eXist-expect.log
 	@echo 'while [[ -z "$$(curl -I -s -f 'http://127.0.0.1:8080/')" ]] ; do sleep 5 ; done' >> $(@)
 	@chmod +x $(@)
 	@echo '-------------------------------------------------------------------'
-
-
 
 $(TEMP_DIR)/exist.service: $(TEMP_DIR)/eXist-expect.log
 	@echo "## $(notdir $@) ##"
