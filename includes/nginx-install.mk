@@ -19,7 +19,6 @@ nginx:  $(TEMP_DIR)/nginx-run.sh
 $(NGINX_VERSION):
 	@echo "{{{ $(notdir $@) "
 	@if [ -d $(dir $@) ] ;then echo 'temp dir exists';else mkdir $(dir $@) ;fi
-	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $dir (@),)
 	@echo 'fetch the latest nginx version'
 	@echo NGINX_VER=$$( curl -s -L  $(NGINX_VERSION_SOURCE) | tr -d '\n\r' |\
  grep -oP 'nginx-\K([0-9]+\.[0-9]+\.[0-9]+)(?=....$(NGINX_VERSION_OPTION))' |\
@@ -37,7 +36,7 @@ $(NGINX_VERSION):
   grep -oP 'zlib \K[0-9]+\.[0-9]+\.[0-9]+' | \
   head -1 ) >> $(@)
 	@cat $(@) | tail -1
-	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
+	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) -R $dir (@),)
 	@echo '-----------------------------------------------------------------}}}'
 
 $(TEMP_DIR)/curl-nginx.log: $(NGINX_VERSION)
@@ -55,7 +54,7 @@ $(TEMP_DIR)/curl-nginx.log: $(NGINX_VERSION)
 	@echo  'downloaded and unzipped $(call getVERSION,$<,zlib)' >>  $(@) 
 	@echo  'downloaded and unzipped $(call getVERSION,$<,pcre)' >>  $(@)
 	@echo  'downloaded and unzipped $(call getVERSION,$<,openssl)' >>  $(@)
-	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
+	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) -R $dir (@),)
 	@echo '-----------------------------------------------------------------}}}'
 
 $(NGINX_HOME)/sbin/nginx: $(TEMP_DIR)/curl-nginx.log
@@ -65,7 +64,7 @@ $(NGINX_HOME)/sbin/nginx: $(TEMP_DIR)/curl-nginx.log
  --with-pcre="../pcre-$${PCRE_VER}" \
  --with-zlib="../zlib-$${ZLIB_VER}" \
  --with-http_gzip_static_module && make && make install 
-	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
+	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) -R $dir (@),)
 	@echo '-----------------------------------------------------------------}}}'
 
 # $(TEMP_DIR)/nginx_ssl_install.log: $(TEMP_DIR)/curl-nginx.log
