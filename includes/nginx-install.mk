@@ -60,14 +60,13 @@ $(TEMP_DIR)/curl-nginx.log: $(NGINX_VERSION)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '-----------------------------------------------------------------}}}'
 
-$(TEMP_DIR)/nginx_install.log: $(TEMP_DIR)/curl-nginx.log
+$(NGINX_HOME)/sbin/nginx: $(TEMP_DIR)/curl-nginx.log
 	@echo "{{{ $(notdir $@) "
-	source $(NGINX_VERSION); cd $(dir $(@))/nginx-$${NGINX_VER} ;ls -al .
 	source $(NGINX_VERSION); cd $(dir $(@))/nginx-$${NGINX_VER} ;\
  ./configure   --with-select_module  \
  --with-pcre="../pcre-$${PCRE_VER}" \
  --with-zlib="../zlib-$${ZLIB_VER}" \
- --with-http_gzip_static_module && make && make install  > $(@)
+ --with-http_gzip_static_module && make && make install 
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '-----------------------------------------------------------------}}}'
 
@@ -83,7 +82,7 @@ $(TEMP_DIR)/nginx_ssl_install.log: $(TEMP_DIR)/curl-nginx.log
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '-----------------------------------------------------------------}}}'
 
-$(TEMP_DIR)/nginx-run.sh: $(TEMP_DIR)/nginx_install.log
+$(TEMP_DIR)/nginx-run.sh: $(NGINX_HOME)/sbin/nginx
 	@echo "{{{ $(notdir $@) "
 	@echo '#!/usr/bin/env bash' > $(@)
 	@echo 'cd $(NGINX_HOME)/sbin' >> $(@)
