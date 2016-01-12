@@ -5,8 +5,10 @@ addons:
     apt:
         packages:
         - expect
+    hosts:
+        - example.com
 before-install:
-- true
+    - sudo cat /etc/hosts
 install:
     - sudo make nginx && sudo ./.temp/nginx-run.sh
     - sudo make eXist && sudo ./.temp/eXist-run.sh

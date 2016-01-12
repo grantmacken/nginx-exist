@@ -30,9 +30,9 @@ $(info make version - $(MAKE_VERSION))
 $(info system - $(SYSTEMD))
 $(info current working directory - $(shell pwd))
 $(info which - $(shell which netstat))
-$(info which - $(shell which nodejs))
-$(info which - $(shell which node))
 $(info eXist home - $(EXIST_HOME))
+$(info  travis repo slug- $(TRAVIS_REPO_SLUG))
+$(info  travis java  home - $(JAVA_HOME))
 
 EXIST_VERSION := $(TEMP_DIR)/eXist-latest.version
 
