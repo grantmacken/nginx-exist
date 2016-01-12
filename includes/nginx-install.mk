@@ -41,12 +41,12 @@ $(NGINX_VERSION):
 $(TEMP_DIR)/curl-nginx.log: $(NGINX_VERSION)
 	@echo "{{{ $(notdir $@) "
 	@echo "$(NGINX_DOWNLOAD)/$(call getVERSION,$<,nginx)" && \
- curl $(NGINX_DOWNLOAD)/$(call getVERSION,$<,nginx) |  \
+ curl -sLf $(NGINX_DOWNLOAD)/$(call getVERSION,$<,nginx) |  \
  tar xz --directory $(dir $@) && \
  echo "$(ZLIB_DOWNLOAD)/$(call getVERSION,$<,zlib)" && \
- curl $(ZLIB_DOWNLOAD)/$(call getVERSION,$<,zlib) | \
+ curl -sLf $(ZLIB_DOWNLOAD)/$(call getVERSION,$<,zlib) | \
  tar xz --directory $(dir $@) && \
- echo "$(PCRE_DOWNLOAD)/$(call getVERSION,$<,pcre)" && \
+ echo -sLf "$(PCRE_DOWNLOAD)/$(call getVERSION,$<,pcre)" && \
  curl $(PCRE_DOWNLOAD)/$(call getVERSION,$<,pcre) | \
  tar xz --directory $(dir $@)
 	@echo  'downloaded and unzipped $(call getVERSION,$<,nginx)' >  $(@) 
