@@ -10,11 +10,10 @@ chkWhichNginx := $(shell which nginx)
 installedNginxVersion := $(if $(chkWhichNginx),\
 $(shell  $(chkWhichNginx) -v 2>&1 | grep -oP '\K[0-9]+\.[0-9]+\.[0-9_]+' ),)
 $(info install nginx version - $(installedNginxVersion))
+$(info $(NGINX_HOME))
 
 getSRCVAR = $(shell echo '$1_ver' | tr 'a-z' 'A-Z')
 getVERSION = $(addsuffix .tar.gz,$(addprefix $2-,$(shell source $1 && echo $$$(call getSRCVAR,$2))))
-
-nginx:  $(TEMP_DIR)/nginx-run.sh
 
 $(NGINX_VERSION):
 	@echo "{{{ $(notdir $@) "
@@ -57,16 +56,54 @@ $(TEMP_DIR)/curl-nginx.log: $(NGINX_VERSION)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) -R $(dir $@),)
 	@echo '-----------------------------------------------------------------}}}'
 
-$(NGINX_HOME)/sbin/nginx: $(TEMP_DIR)/curl-nginx.log
+$(NGINX_HOME)/conf/nginx.conf: $(TEMP_DIR)/curl-nginx.log
 	@echo "{{{ $(notdir $@) "
 	source $(NGINX_VERSION); cd $(dir $(<))/nginx-$${NGINX_VER} ;\
  ./configure   --with-select_module  \
  --with-pcre="../pcre-$${PCRE_VER}" \
  --with-zlib="../zlib-$${ZLIB_VER}" \
  --with-http_gzip_static_module && make && make install 
+	@if [ -d $(NGINX_HOME)/proxy ] ; then mkdir $(NGINX_HOME)/proxy ;fi
+	@if [ -d $(NGINX_HOME)/cache ] ; then mkdir $(NGINX_HOME)/cache ;fi
+	@echo "configure nginx so it acts as a reverse proxy for eXist"
+	@echo 'set one worker per core'
+	@echo 'worker_processes $(shell grep ^proces /proc/cpuinfo | wc -l );' > $@
+	@cat $@ | tail -1
+	@echo '' >> $@
+	@echo 'events {' >> $@
+	@echo '  worker_connections  1024;' >> $@
+	@echo '}' >> $@
+	@echo '' >> $@
+	@echo 'http {' >> $@
+	@echo '  include mime.types;' >> $@
+	@echo '  default_type application/octet-stream;' >> $@
+	@echo '  sendfile on;' >> $@
+	@echo '  keepalive_timeout 65;' >> $@
+	@echo '  server {' >> $@
+	@echo '    listen 80 default deferred;' >> $@
+	@echo '    server_name ~^(www\.)?(?<domain>.+)$$;' >> $@
+	@echo '' >> $@
+	@echo '    location ~* ^(.*)\.html$$ {' >> $@
+	@echo '      try_files $$uri @proxy;' >> $@
+	@echo '      proxy_pass http://localhost:8080;' >> $@
+	@echo '    }' >> $@
+	@echo '' >> $@
+	@echo '    location @proxy {' >> $@
+	@echo '      rewrite ^/?(.*)$$ /exist/apps/$$domain/$$1 break;' >> $@
+	@echo '      proxy_pass http://localhost:8080;' >> $@
+	@echo '    }' >> $@
+	@echo '  }' >> $@
+	@echo '}' >> $@
+	@echo '' >> $@
+	@$(if $(SUDO_USER),chown $(SUDO_USER):$(SUDO_USER) $(@),)
+	@cp -f $@ $(NGINX_HOME)/conf/nginx.conf
+	@$(NGINX_HOME)/sbin/nginx -V 
 	@$(if $(SUDO_USER),chown $(SUDO_USER) -R $(NGINX_HOME),)
 	@echo '-----------------------------------------------------------------}}}'
 
+# @cp -f -v nginx-config/common/* $(NGINX_HOME)/conf
+# @cp -f -v nginx-config/prod/* $(NGINX_HOME)/conf
+# @mv -f -v $(NGINX_HOME)/conf/nginx-prod.conf $(NGINX_HOME)/conf/nginx.conf
 # $(TEMP_DIR)/nginx_ssl_install.log: $(TEMP_DIR)/curl-nginx.log
 # @echo 'fetch the latest opnssl version'
 # @echo OPENSSL_VER=$$( \
@@ -89,12 +126,51 @@ $(NGINX_HOME)/sbin/nginx: $(TEMP_DIR)/curl-nginx.log
 # @$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 # @echo '-----------------------------------------------------------------}}}'
 
-$(TEMP_DIR)/nginx-run.sh: $(NGINX_HOME)/sbin/nginx
+$(TEMP_DIR)/nginx-run.sh: $(NGINX_HOME)/conf/nginx.conf
 	@echo "{{{ $(notdir $@) "
+	@echo " $(notdir $@) will start ngnix on travis"
 	@echo '#!/usr/bin/env bash' > $(@)
 	@echo 'cd $(NGINX_HOME)/sbin' >> $(@)
 	@echo './nginx &' >> $(@)
 	@echo 'while [[ -z "$$(curl -I -s -f 'http://127.0.0.1:80/')" ]] ; do sleep 5 ; done' >> $(@)
 	@chmod +x $(@)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
+	@echo '-----------------------------------------------------------------}}}'
+
+$(TEMP_DIR)/nginx.conf:
+	@echo "{{{ $(notdir $@) "
+	@echo 'set one worker per core'
+	@echo 'worker_processes $(shell grep ^proces /proc/cpuinfo | wc -l );' > $@
+	@cat $@ | tail -1
+	@echo '' >> $@
+	@echo 'events {' >> $@
+	@echo '  worker_connections  1024;' >> $@
+	@echo '}' >> $@
+	@echo '' >> $@
+	@echo 'http {' >> $@
+	@echo '  include mime.types;' >> $@
+	@echo '  default_type application/octet-stream;' >> $@
+	@echo '  sendfile on;' >> $@
+	@echo '  keepalive_timeout 65;' >> $@
+	@echo '  server {' >> $@
+	@echo '    listen 80 default deferred;' >> $@
+	@echo '    server_name ~^(www\.)?(?<domain>.+)$$;' >> $@
+	@echo '' >> $@
+	@echo '    location ~* ^(.*)\.html$$ {' >> $@
+	@echo '      try_files $$uri @proxy;' >> $@
+	@echo '      proxy_pass http://localhost:8080;' >> $@
+	@echo '    }' >> $@
+	@echo '' >> $@
+	@echo '    location @proxy {' >> $@
+	@echo '      rewrite ^/?(.*)$$ /exist/apps/$$domain/$$1 break;' >> $@
+	@echo '      proxy_pass http://localhost:8080;' >> $@
+	@echo '    }' >> $@
+	@echo '  }' >> $@
+	@echo '}' >> $@
+	@echo '' >> $@
+	@$(if $(SUDO_USER),chown $(SUDO_USER):$(SUDO_USER) $(@),)
+	@cp -f $@ $(NGINX_HOME)/conf/nginx.conf
+	@$(NGINX_HOME)/sbin/nginx -t
+	@$(NGINX_HOME)/sbin/nginx -s reload
+	@rm $@
 	@echo '-----------------------------------------------------------------}}}'

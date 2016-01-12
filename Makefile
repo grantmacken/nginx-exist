@@ -56,7 +56,7 @@ include includes/nginx-install.mk
 .PHONY: help test
 
 build-nginx:  $(TEMP_DIR)/nginx-run.sh  
-
+nginx-config: $(TEMP_DIR)/nginx.conf
 build-eXist: $(TEMP_DIR)/eXist-run.sh 
 
 build: $(build-eXist) $(build-nginx)
