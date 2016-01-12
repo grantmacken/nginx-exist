@@ -57,8 +57,9 @@ include includes/nginx-install.mk
 
 build-eXist: $(TEMP_DIR)/eXist-run.sh
 
-build: $(NGINX_HOME)/conf/nginx.conf
+nginx-install: $(TEMP_DIR)/nginx-run.sh
 
+nginx-config: $(TEMP_DIR)/nginx.conf
 
 exist-service:  $(TEMP_DIR)/exist.service
 

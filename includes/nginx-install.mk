@@ -5,6 +5,7 @@ ZLIB_DOWNLOAD := http://zlib.net
 OPENSSL_DOWNLOAD := http://www.openssl.org/source
 NGINX_VERSION := $(TEMP_DIR)/nginx-latest.version
 NGINX_VERSION_OPTION := mainline
+NGINX_CONFIG := $(NGINX_HOME)/conf/nginx.conf
 
 chkWhichNginx := $(shell which nginx)
 installedNginxVersion := $(if $(chkWhichNginx),\
@@ -14,6 +15,40 @@ $(info nginx home - $(NGINX_HOME))
 
 getSRCVAR = $(shell echo '$1_ver' | tr 'a-z' 'A-Z')
 getVERSION = $(addsuffix .tar.gz,$(addprefix $2-,$(shell source $1 && echo $$$(call getSRCVAR,$2))))
+
+define nginxConfig
+	@echo "configure nginx so it acts as a reverse proxy for eXist"
+	@echo 'set one worker per core'
+	@echo 'worker_processes $(shell grep ^proces /proc/cpuinfo | wc -l );' > $1
+	@cat $1 | tail -1
+	@echo '' >> $1
+	@echo 'events {' >> $1
+	@echo '  worker_connections  1024;' >> $1
+	@echo '}' >> $1
+	@echo '' >> $1
+	@echo 'http {' >> $1
+	@echo '  include mime.types;' >> $1
+	@echo '  default_type application/octet-stream;' >> $1
+	@echo '  sendfile on;' >> $1
+	@echo '  keepalive_timeout 65;' >> $1
+	@echo '  server {' >> $1
+	@echo '    listen 80 default deferred;' >> $1
+	@echo '    server_name ~^(www\.)?(?<domain>.+)$$;' >> $1
+	@echo '' >> $1
+	@echo '    location ~* ^(.*)\.html$$ {' >> $1
+	@echo '      try_files $$uri @proxy;' >> $1
+	@echo '      proxy_pass http://localhost:8080;' >> $1
+	@echo '    }' >> $1
+	@echo '' >> $1
+	@echo '    location @proxy {' >> $1
+	@echo '      rewrite ^/?(.*)$$ /exist/apps/$$domain/$$1 break;' >> $1
+	@echo '      proxy_pass http://localhost:8080;' >> $1
+	@echo '    }' >> $1
+	@echo '  }' >> $1
+	@echo '}' >> $1
+	@echo '' >> $1
+endef
+
 
 $(NGINX_VERSION): config
 	@echo "{{{ $(notdir $@) "
@@ -32,7 +67,7 @@ $(NGINX_VERSION): config
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) -R $(dir $@),)
 	@echo '-----------------------------------------------------------------}}}'
 
-$(NGINX_HOME)/conf/nginx.conf: $(NGINX_VERSION)
+$(TEMP_DIR)/nginx-tested.log: $(NGINX_VERSION)
 	@echo "{{{ $(notdir $@) "
 	@echo "$(NGINX_DOWNLOAD)/$(call getVERSION,$<,nginx)" && \
  curl $(NGINX_DOWNLOAD)/$(call getVERSION,$<,nginx) |  \
@@ -45,37 +80,11 @@ $(NGINX_HOME)/conf/nginx.conf: $(NGINX_VERSION)
  --with-pcre="../pcre-$${PCRE_VER}" \
  --with-http_gzip_static_module && make && make install
 	@if [ -d $(NGINX_HOME)/proxy ] ; then mkdir $(NGINX_HOME)/proxy ;fi
-	@if [ -d $(NGINX_HOME)/cache ] ; then mkdir $(NGINX_HOME)/cache ;fi
-	@echo "configure nginx so it acts as a reverse proxy for eXist"
-	@echo 'set one worker per core'
-	@echo 'worker_processes $(shell grep ^proces /proc/cpuinfo | wc -l );' > $@
-	@cat $@ | tail -1
-	@echo '' >> $@
-	@echo 'events {' >> $@
-	@echo '  worker_connections  1024;' >> $@
-	@echo '}' >> $@
-	@echo '' >> $@
-	@echo 'http {' >> $@
-	@echo '  include mime.types;' >> $@
-	@echo '  default_type application/octet-stream;' >> $@
-	@echo '  sendfile on;' >> $@
-	@echo '  keepalive_timeout 65;' >> $@
-	@echo '  server {' >> $@
-	@echo '    listen 80 default deferred;' >> $@
-	@echo '    server_name ~^(www\.)?(?<domain>.+)$$;' >> $@
-	@echo '' >> $@
-	@echo '    location ~* ^(.*)\.html$$ {' >> $@
-	@echo '      try_files $$uri @proxy;' >> $@
-	@echo '      proxy_pass http://localhost:8080;' >> $@
-	@echo '    }' >> $@
-	@echo '' >> $@
-	@echo '    location @proxy {' >> $@
-	@echo '      rewrite ^/?(.*)$$ /exist/apps/$$domain/$$1 break;' >> $@
-	@echo '      proxy_pass http://localhost:8080;' >> $@
-	@echo '    }' >> $@
-	@echo '  }' >> $@
-	@echo '}' >> $@
-	@echo '' >> $@
+	@if [ -d $(NGINX_HOME)/cache ] ; then mkdir $(NGINX_HOME)/cache ;fi    
+	$(call  nginxConfig, $@)
+	@$(if $(shell echo "$$($(NGINX_HOME)/sbin/nginx -t -q)"),\
+$(NGINX_HOME)/sbin/nginx -t,\
+echo "nginx config ok" > $(dir $@)nginx-tested.log)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) -R $(dir $<),)
 	@$(if $(SUDO_USER),chown $(SUDO_USER) -R $(NGINX_HOME),)
 	@echo '-----------------------------------------------------------------}}}'
@@ -105,7 +114,7 @@ $(NGINX_HOME)/conf/nginx.conf: $(NGINX_VERSION)
 # @$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 # @echo '-----------------------------------------------------------------}}}'
 
-$(TEMP_DIR)/nginx-run.sh: $(NGINX_HOME)/conf/nginx.conf
+$(TEMP_DIR)/nginx-run.sh: $(TEMP_DIR)/nginx-tested.log
 	@echo "{{{ $(notdir $@) "
 	@echo " $(notdir $@) will start ngnix on travis"
 	@echo '#!/usr/bin/env bash' > $(@)
@@ -118,38 +127,13 @@ $(TEMP_DIR)/nginx-run.sh: $(NGINX_HOME)/conf/nginx.conf
 
 $(TEMP_DIR)/nginx.conf:
 	@echo "{{{ $(notdir $@) "
-	@echo 'set one worker per core'
-	@echo 'worker_processes $(shell grep ^proces /proc/cpuinfo | wc -l );' > $@
-	@cat $@ | tail -1
-	@echo '' >> $@
-	@echo 'events {' >> $@
-	@echo '  worker_connections  1024;' >> $@
-	@echo '}' >> $@
-	@echo '' >> $@
-	@echo 'http {' >> $@
-	@echo '  include mime.types;' >> $@
-	@echo '  default_type application/octet-stream;' >> $@
-	@echo '  sendfile on;' >> $@
-	@echo '  keepalive_timeout 65;' >> $@
-	@echo '  server {' >> $@
-	@echo '    listen 80 default deferred;' >> $@
-	@echo '    server_name ~^(www\.)?(?<domain>.+)$$;' >> $@
-	@echo '' >> $@
-	@echo '    location ~* ^(.*)\.html$$ {' >> $@
-	@echo '      try_files $$uri @proxy;' >> $@
-	@echo '      proxy_pass http://localhost:8080;' >> $@
-	@echo '    }' >> $@
-	@echo '' >> $@
-	@echo '    location @proxy {' >> $@
-	@echo '      rewrite ^/?(.*)$$ /exist/apps/$$domain/$$1 break;' >> $@
-	@echo '      proxy_pass http://localhost:8080;' >> $@
-	@echo '    }' >> $@
-	@echo '  }' >> $@
-	@echo '}' >> $@
-	@echo '' >> $@
-	@$(if $(SUDO_USER),chown $(SUDO_USER):$(SUDO_USER) $(@),)
+	$(call  nginxConfig, $@)
+	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@cp -f $@ $(NGINX_HOME)/conf/nginx.conf
-	@$(NGINX_HOME)/sbin/nginx -t
-	@$(NGINX_HOME)/sbin/nginx -s reload
-	@rm $@
+	@$(if $(shell echo "$$($(NGINX_HOME)/sbin/nginx -t -q)"),\
+$(NGINX_HOME)/sbin/nginx -t,\
+mv $@ $(dir $@)$(addprefix tested-,$(notdir $@)) && \
+echo "nginx config ok" > $(dir $@)nginx-tested.log && \
+$(NGINX_HOME)/sbin/nginx -s reload )
+	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(dir $@)nginx-tested.log,)
 	@echo '-----------------------------------------------------------------}}}'
