@@ -42,13 +42,13 @@ $(TEMP_DIR)/curl-nginx.log: $(NGINX_VERSION)
 	@echo "{{{ $(notdir $@) "
 	@echo "$(NGINX_DOWNLOAD)/$(call getVERSION,$<,nginx)" 
 	@wget $(NGINX_DOWNLOAD)/$(call getVERSION,$<,nginx) 
-	@tar xz --directory $(dir $@) 
+	@tar xz --directory $(dir $@) $(call getVERSION,$<,nginx) 
 	@echo "$(ZLIB_DOWNLOAD)/$(call getVERSION,$<,zlib)" 
 	@wget $(ZLIB_DOWNLOAD)/$(call getVERSION,$<,zlib) 
-	@tar xz --directory $(dir $@)
+	@tar xz --directory $(dir $@) $(call getVERSION,$<,zlib) 
 	@echo  "$(PCRE_DOWNLOAD)/$(call getVERSION,$<,pcre)" 
 	@wget $(PCRE_DOWNLOAD)/$(call getVERSION,$<,pcre) 
-	@tar xz --directory $(dir $@)
+	@tar xz --directory $(dir $@)  $(call getVERSION,$<,pcre) 
 	@echo  'downloaded and unzipped $(call getVERSION,$<,nginx)' >  $(@) 
 	@echo  'downloaded and unzipped $(call getVERSION,$<,zlib)' >>  $(@) 
 	@echo  'downloaded and unzipped $(call getVERSION,$<,pcre)' >>  $(@)
