@@ -29,7 +29,9 @@ $(info SUDO USER - $(SUDO_USER))
 $(info make version - $(MAKE_VERSION))
 $(info system - $(SYSTEMD))
 $(info current working directory - $(shell pwd))
-$(info which - $(shell which netstat)
+$(info which - $(shell which netstat))
+$(info which - $(shell which nodejs))
+$(info which - $(shell which node))
 $(info eXist home - $(EXIST_HOME))
 
 EXIST_VERSION := $(TEMP_DIR)/eXist-latest.version
