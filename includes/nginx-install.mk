@@ -29,30 +29,19 @@ $(NGINX_VERSION):
  grep -oP "pcre-\K[0-9]+\.[0-9]+(?=\.tar\.gz)" | \
  tail -1  ) >> $(@)
 	@cat $(@) | tail -1
-	@echo 'fetch the latest zlib version'
-	@echo ZLIB_VER=$$( \
-  curl -s 'http://zlib.net' | \
-  grep -oP 'zlib \K[0-9]+\.[0-9]+\.[0-9]+' | \
-  head -1 ) >> $(@)
-	@cat $(@) | tail -1
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) -R $(dir $@),)
 	@echo '-----------------------------------------------------------------}}}'
 
 $(TEMP_DIR)/curl-nginx.log: $(NGINX_VERSION)
 	@echo "{{{ $(notdir $@) "
-	@echo "$(NGINX_DOWNLOAD)/$(call getVERSION,$<,nginx)" 
-	@wget $(NGINX_DOWNLOAD)/$(call getVERSION,$<,nginx) 
-	@tar xz --directory $(dir $@) $(call getVERSION,$<,nginx) 
-	@echo "$(ZLIB_DOWNLOAD)/$(call getVERSION,$<,zlib)" 
-	@wget $(ZLIB_DOWNLOAD)/$(call getVERSION,$<,zlib) 
-	@tar xz --directory $(dir $@) $(call getVERSION,$<,zlib) 
-	@echo  "$(PCRE_DOWNLOAD)/$(call getVERSION,$<,pcre)" 
-	@wget $(PCRE_DOWNLOAD)/$(call getVERSION,$<,pcre) 
-	@tar xz --directory $(dir $@)  $(call getVERSION,$<,pcre) 
+	@echo "$(NGINX_DOWNLOAD)/$(call getVERSION,$<,nginx)" && \
+ curl -sLf $(NGINX_DOWNLOAD)/$(call getVERSION,$<,nginx) |  \
+ tar xz --directory $(dir $@) && \
+ echo -sLf "$(PCRE_DOWNLOAD)/$(call getVERSION,$<,pcre)" && \
+ curl $(PCRE_DOWNLOAD)/$(call getVERSION,$<,pcre) | \
+ tar xz --directory $(dir $@)
 	@echo  'downloaded and unzipped $(call getVERSION,$<,nginx)' >  $(@) 
-	@echo  'downloaded and unzipped $(call getVERSION,$<,zlib)' >>  $(@) 
-	@echo  'downloaded and unzipped $(call getVERSION,$<,pcre)' >>  $(@)
-	@echo  'downloaded and unzipped $(call getVERSION,$<,openssl)' >>  $(@)
+	@echo  'downloaded and unzipped $(call getVERSION,$<,pcre)' >>  $(@) 
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) -R $(dir $@),)
 	@echo '-----------------------------------------------------------------}}}'
 
@@ -61,7 +50,6 @@ $(NGINX_HOME)/conf/nginx.conf: $(TEMP_DIR)/curl-nginx.log
 	source $(NGINX_VERSION); cd $(dir $(<))/nginx-$${NGINX_VER} ;\
  ./configure   --with-select_module  \
  --with-pcre="../pcre-$${PCRE_VER}" \
- --with-zlib="../zlib-$${ZLIB_VER}" \
  --with-http_gzip_static_module && make && make install 
 	@if [ -d $(NGINX_HOME)/proxy ] ; then mkdir $(NGINX_HOME)/proxy ;fi
 	@if [ -d $(NGINX_HOME)/cache ] ; then mkdir $(NGINX_HOME)/cache ;fi
