@@ -22,16 +22,16 @@ WHOAMI := $(shell whoami)
 INSTALLER := $(if $(SUDO_USER),$(SUDO_USER),$(WHOAMI))
 MAKE_VERSION := $(shell make --version | head -1)
 SYSTEMD := $(shell ps -p1 | grep systemd )
+TEMP_DIR := .temp
+
 $(info who am i - $(WHOAMI))
 $(info SUDO USER - $(SUDO_USER))
 $(info make version - $(MAKE_VERSION))
 $(info system - $(SYSTEMD))
 $(info current working directory - $(shell pwd))
-TEMP_DIR=.temp
-ifeq ($(WHOAMI),travis)
-EXIST_HOME = $(HOME)/eXist
-endif
+$(info which - $(shell which netstat)
 $(info eXist home - $(EXIST_HOME))
+
 EXIST_VERSION := $(TEMP_DIR)/eXist-latest.version
 
 cat = $(shell if [ -e $(1) ] ;then echo "$$(<$(1))" ;fi )

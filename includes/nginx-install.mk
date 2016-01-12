@@ -49,7 +49,6 @@ define nginxConfig
 	@echo '' >> $1
 endef
 
-
 $(NGINX_VERSION): config
 	@echo "{{{ $(notdir $@) "
 	@if [ -d $(dir $@) ] ;then echo 'temp dir exists';else mkdir $(dir $@) ;fi

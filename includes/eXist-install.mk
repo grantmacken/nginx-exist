@@ -15,7 +15,6 @@ $(EXIST_VERSION):
 	@echo 'fetch the latest eXist version'
 	@curl -s -L  $(EXIST_VERSION_SOURCE) | grep -oP '>\KeXist-db-setup[-\w\.]+' > $@
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
-	@ls -al $(dir $@)
 	@cat $@
 	@echo '-------------------------------------------------------------------'
 
@@ -84,6 +83,7 @@ $(TEMP_DIR)/eXist-run.sh: $(TEMP_DIR)/eXist-expect.log
 	@echo 'java -Djava.endorsed.dirs=lib/endorsed -Djava.net.preferIPv4Stack=true -jar start.jar jetty &' >> $(@)
 	@echo 'while [[ -z "$$(curl -I -s -f 'http://127.0.0.1:8080/')" ]] ; do sleep 5 ; done' >> $(@)
 	@chmod +x $(@)
+	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '-------------------------------------------------------------------'
 
 $(TEMP_DIR)/exist.service: $(TEMP_DIR)/eXist-expect.log
