@@ -8,7 +8,6 @@ addons:
 before-install:
 - true
 install:
-    - sudo make build-nginx && sudo ./.temp/nginx-run.sh 
-    - make build-eXist &&  ./.temp/eXist-run.sh
+    - sudo make nginx && sudo ./.temp/nginx-run.sh 
 script:
 - prove -v
