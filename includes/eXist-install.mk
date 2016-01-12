@@ -38,7 +38,7 @@ $(TEMP_DIR)/eXist.expect: $(TEMP_DIR)/wget-eXist.log
 	@echo 'creating expect file'
 	@echo '#!$(EXPECT) -f' > $(@)
 	$(if $(SUDO_USER),\
- echo 'spawn su -c "java -jar $(call EXIST_JAR_PATH) -console" -s /bin/sh $(INSTALLER)' > $(@),\
+ echo 'spawn su -c "java -jar $(call EXIST_JAR_PATH) -console" -s /bin/sh $(INSTALLER)' >> $(@),\
  echo 'spawn java -jar $(call EXIST_JAR_PATH) -console' >> $(@))
 	@echo 'expect "Select target" { send "$(EXIST_HOME)\n" }'  >> $(@)
 	@echo 'expect "*ress 1" { send "1\n" }'  >> $(@)
