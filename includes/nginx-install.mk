@@ -10,12 +10,12 @@ chkWhichNginx := $(shell which nginx)
 installedNginxVersion := $(if $(chkWhichNginx),\
 $(shell  $(chkWhichNginx) -v 2>&1 | grep -oP '\K[0-9]+\.[0-9]+\.[0-9_]+' ),)
 $(info install nginx version - $(installedNginxVersion))
-$(info $(NGINX_HOME))
+$(info nginx home - $(NGINX_HOME))
 
 getSRCVAR = $(shell echo '$1_ver' | tr 'a-z' 'A-Z')
 getVERSION = $(addsuffix .tar.gz,$(addprefix $2-,$(shell source $1 && echo $$$(call getSRCVAR,$2))))
 
-$(NGINX_VERSION):
+$(NGINX_VERSION): config
 	@echo "{{{ $(notdir $@) "
 	@if [ -d $(dir $@) ] ;then echo 'temp dir exists';else mkdir $(dir $@) ;fi
 	@echo 'fetch the latest nginx version'
@@ -32,25 +32,18 @@ $(NGINX_VERSION):
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) -R $(dir $@),)
 	@echo '-----------------------------------------------------------------}}}'
 
-$(TEMP_DIR)/curl-nginx.log: $(NGINX_VERSION)
+$(NGINX_HOME)/conf/nginx.conf: $(NGINX_VERSION)
 	@echo "{{{ $(notdir $@) "
 	@echo "$(NGINX_DOWNLOAD)/$(call getVERSION,$<,nginx)" && \
  curl $(NGINX_DOWNLOAD)/$(call getVERSION,$<,nginx) |  \
- tar xz --directory $(dir $@) && \
+ tar xz --directory $(dir $<) && \
  echo "$(PCRE_DOWNLOAD)/$(call getVERSION,$<,pcre)" && \
  curl $(PCRE_DOWNLOAD)/$(call getVERSION,$<,pcre) | \
- tar xz --directory $(dir $@)
-	@echo  'downloaded and unzipped $(call getVERSION,$<,nginx)' >  $(@) 
-	@echo  'downloaded and unzipped $(call getVERSION,$<,pcre)' >>  $(@) 
-	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) -R $(dir $@),)
-	@echo '-----------------------------------------------------------------}}}'
-
-$(NGINX_HOME)/conf/nginx.conf: $(TEMP_DIR)/curl-nginx.log
-	@echo "{{{ $(notdir $@) "
+ tar xz --directory $(dir $<)
 	source $(NGINX_VERSION); cd $(dir $(<))/nginx-$${NGINX_VER} ;\
  ./configure   --with-select_module  \
  --with-pcre="../pcre-$${PCRE_VER}" \
- --with-http_gzip_static_module && make && make install 
+ --with-http_gzip_static_module && make && make install
 	@if [ -d $(NGINX_HOME)/proxy ] ; then mkdir $(NGINX_HOME)/proxy ;fi
 	@if [ -d $(NGINX_HOME)/cache ] ; then mkdir $(NGINX_HOME)/cache ;fi
 	@echo "configure nginx so it acts as a reverse proxy for eXist"
@@ -83,8 +76,7 @@ $(NGINX_HOME)/conf/nginx.conf: $(TEMP_DIR)/curl-nginx.log
 	@echo '  }' >> $@
 	@echo '}' >> $@
 	@echo '' >> $@
-	@$(NGINX_HOME)/sbin/nginx -V 
-	@$(if $(shell $(NGINX_HOME)/sbin/nginx -tq),$(error bad nginx config ),$(info good nginx config ) )
+	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) -R $(dir $<),)
 	@$(if $(SUDO_USER),chown $(SUDO_USER) -R $(NGINX_HOME),)
 	@echo '-----------------------------------------------------------------}}}'
 
