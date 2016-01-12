@@ -95,9 +95,8 @@ $(NGINX_HOME)/conf/nginx.conf: $(TEMP_DIR)/curl-nginx.log
 	@echo '  }' >> $@
 	@echo '}' >> $@
 	@echo '' >> $@
-	@$(if $(SUDO_USER),chown $(SUDO_USER):$(SUDO_USER) $(@),)
-	@cp -f $@ $(NGINX_HOME)/conf/nginx.conf
 	@$(NGINX_HOME)/sbin/nginx -V 
+	@$(if $(shell $(NGINX_HOME)/sbin/nginx -tq),$(error bad nginx config ),$(info good nginx config ) )
 	@$(if $(SUDO_USER),chown $(SUDO_USER) -R $(NGINX_HOME),)
 	@echo '-----------------------------------------------------------------}}}'
 
