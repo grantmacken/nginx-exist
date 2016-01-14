@@ -25,6 +25,5 @@ is "$(curl -Is http://example.com | grep -oP 'nginx')" \
  'nginx' \
  'example.com dns bypass OK' 
 
-
 note "FIN"
 

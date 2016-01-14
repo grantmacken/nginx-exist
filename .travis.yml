@@ -5,6 +5,7 @@ addons:
     apt:
         packages:
         - expect
+        - davfs2
 install:
     - sudo make nginx && sudo ./.temp/nginx-run.sh
     - sudo make eXist && sudo ./.temp/eXist-run.sh
