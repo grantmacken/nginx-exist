@@ -121,10 +121,6 @@ $(TEMP_DIR)/webdav.expect:
 	@echo '#!$(EXPECT) -f' > $(@)
 	@echo 'spawn dpkg-reconfigure davfs2 -freadline' >> $(@)
 	@echo 'expect "Should" { send "Y\n" }'  >> $(@)
-	@echo 'expect -timeout -1 "done" {' >> $(@)
-	@echo ' wait'  >> $(@)
-	@echo ' exit'  >> $(@)
-	@echo '}'  >> $(@)
 	@chmod +x $(@)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '---}}}'
