@@ -9,15 +9,15 @@ EXIST_DOWNLOAD_SOURCE=https://bintray.com/artifact/download/existdb/releases
 EXIST_VERSION_SOURCE=https://bintray.com/existdb/releases/exist/_latestVersion
 
 $(EXIST_VERSION):
-	@echo "## $(notdir $@) ##"
+	@echo "{{{## $(notdir $@) ##"
 	@echo 'fetch the latest eXist version'
 	@curl -s -L  $(EXIST_VERSION_SOURCE) | grep -oP '>\KeXist-db-setup[-\w\.]+' > $@
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@cat $@
-	@echo '-------------------------------------------------------------------'
+	@echo '}}}'
 
 $(TEMP_DIR)/wget-eXist.log: $(EXIST_VERSION)
-	@echo "## $(notdir $@) ##"
+	@echo "{{{## $(notdir $@) ##"
 	@$(if $(call EXIST_JAR),,$(error oh no! this is bad))
 	@echo "EXIST_JAR: $(call EXIST_JAR)"
 	@echo "EXIST_JAR_PATH: $(call EXIST_JAR_PATH)"
@@ -28,10 +28,10 @@ $(TEMP_DIR)/wget-eXist.log: $(EXIST_VERSION)
 	echo '# because we use wget with no clobber, if we have source then just touch log'
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@cat $@
-	@echo '-------------------------------------------------------------------'
+	@echo '}}}'
 
 $(TEMP_DIR)/eXist.expect: $(TEMP_DIR)/wget-eXist.log
-	@echo "## $(notdir $@) ##"
+	@echo "{{{## $(notdir $@) ##"
 	@echo 'we have $(call EXIST_JAR)'
 	@echo 'creating expect file'
 	@echo '#!$(EXPECT) -f' > $(@)
@@ -56,7 +56,7 @@ $(TEMP_DIR)/eXist.expect: $(TEMP_DIR)/wget-eXist.log
 	@cat $(@)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@chmod +x $(@)
-	@echo '-------------------------------------------------------------------'
+	@echo '}}}'
 
 $(TEMP_DIR)/eXist-expect.log: $(TEMP_DIR)/eXist.expect
 	@echo "{{{## $(notdir $@) ##"
@@ -114,7 +114,6 @@ $(TEMP_DIR)/exist.service: $(TEMP_DIR)/eXist-expect.log
 	@echo '-----}}}'
 
 webdav:  $(TEMP_DIR)/webdav.log
-
 
 $(TEMP_DIR)/webdav.log: 
 	@echo '{{{ $(notdir $@) '

@@ -51,29 +51,37 @@ whatever is nominated in the config file.
 
 A modern Linux OS that uses `systemd`. I recommend  Ubuntu  15.10 onwards
 
-gnu make, expect, git, curl, wget, java 8 ( I'll include my install script for this later)
+gnu Make, expect, git, curl, wget, java 8 ( I'll include my install script for this later)
 
 ##Installing##
 
- Install Location: On our local machine I install eXist into /usr/local (see congfig)
- /usr/local out of the box is owned by root, so I change this by `sudo chown -R $USER /usr/local`  otherwise you will have to run make as sudo. Alternatively in config change the install location of eXist to somewhere like '~/eXist'.
-Note - this is what happens with the Travis build.
+ Install Location:
+ On our local machine I install eXist into '/usr/local' (see congfig)
+ /usr/local out of the box is owned by root, so I change this by `sudo chown -R $USER /usr/local
+ 
+ Because we are changing some system files we will need to run as sudo, however when when you 
+ ssh to your remote VPS, you should be root so no need to sudo
 
- When you ssh to your remote VPS, you should be root so no need to sudo
+Unless we are changing stystem files the makefile will change ownership back to
+user. 
 
-Install: cd into this directory a run `make`
+Install: cd into this directory a run `sudo make`
 
 This will
-
 1. establish the latest eXist version
 2. download latest eXist install jar
 3. create the expect install script. This is used to automate installation
 4. run the expect script to install eXist to location nominated in config
    defaults to '/usr/local/eXist'
 
-Other make targets
+Other make targets                     
 
-1. `sudo make exist-service` :  create a systemd exist.service script and then enable and start the service
+ `sudo make exist-service` 
+ 
+ This will:
+ 1. create a systemd exist.service script
+ 2. service enables 2 env constants EXIST_HOME, SERVER which should be seen by eXit
+ 2. enable and start the service
 
 ##Passwords and Permissions##
 
