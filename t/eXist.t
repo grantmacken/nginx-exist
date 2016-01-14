@@ -2,9 +2,9 @@
 source t/setup
 use Test::More
 
-plan tests 7
+plan tests 4
 
-note "test plan for ngnix-exist"
+note "test plan for eXist install"
 
 ok "$( [ -n ${EXIST_HOME} ] )"  "eXist home set: ${EXIST_HOME}"
 
@@ -16,14 +16,6 @@ is "$(curl -Is http://127.0.0.1:8080/ |\
 is "$(cd ${EXIST_HOME};echo 'sm:is-authenticated()' |\
  java -jar ${EXIST_HOME}/start.jar client -sqx -u admin -P ${P} |\
  tail -1)" 'true'  'can authenticate with username and password'
-
-ok "$( [ -n ${NGINX_HOME} ] )"  "nginx home set: ${NGINX_HOME}"
-
-ok "$( [[ -n "$(curl -I -s -f 'http://127.0.0.1:80/')" ]] )"  'nginx is reachable'
-
-is "$(curl -Is http://example.com | grep -oP 'nginx')" \
- 'nginx' \
- 'example.com dns bypass OK' 
 
 note "FIN"
 
