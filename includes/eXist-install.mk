@@ -118,10 +118,10 @@ webdav:  $(TEMP_DIR)/webdav.log
 $(TEMP_DIR)/webdav.expect:
 	@echo '{{{ $(notdir $@) '
 	@echo 'creating webdav expect file'
-	@echo '#!$(EXPECT) -f' > $(@)
+	@echo '#!$(EXPECT) -d -f' > $(@)
 	@echo ''  >> $(@)
 	@echo 'spawn dpkg-reconfigure davfs2 -freadline'  >> $(@)
-	@echo 'expect "Should" { send "Y\n" }'  >> $(@)
+	@echo 'expect "Should" { send "y\n" }'  >> $(@)
 	@echo ''  >> $(@)
 	@echo 'send_user "\nuser should be able to mount eXistdb as a file system"'  >> $(@)
 	@echo 'send "exit\r"'  >> $(@)
@@ -130,12 +130,13 @@ $(TEMP_DIR)/webdav.expect:
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '---}}}'
 
-$(TEMP_DIR)/webdav.log: $(TEMP_DIR)/webdav.expect
+$(TEMP_DIR)/webdav.log: 
 	@echo '{{{ $(notdir $@) '
 	@$(info CHECK -  mount.davfs suid flag set for user, allowing user to mount webdav)
 	@$(if $(shell test -u /usr/sbin/mount.davfs && echo 'true'),\
  $(info OK! mount.davfs suid flag set),\
- $< &&  test -u /usr/sbin/mount.davfs && echo 'set suid for mount.davfs')
+ expect -c "spawn  dpkg-reconfigure davfs2 -freadline; expect \"Should\"; send \"y\\n\"; interact" &&\
+ test -u /usr/sbin/mount.davfs && echo 'set suid for mount.davfs')
 	@$(info CHECK -  if there is a davfs group )
 	@$(if $(shell echo "$$(groups davfs2 2>/dev/null)"),\
  $(info OK! there is davfs2 group),\
