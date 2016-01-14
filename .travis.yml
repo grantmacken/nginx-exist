@@ -9,8 +9,8 @@ before_install:
       - sudo apt-get -qq update
       - sudo apt-get install -y davfs2          
 install:
-    - sudo expect -d -c "spawn dpkg-reconfigure davfs2 -freadline; expect \"*\"; send \"y\\n\"; interact" 
+    - sudo expect -c "spawn dpkg-reconfigure davfs2 -freadline; expect \"*\"; send \"y\\n\"; interact" 
     - sudo make nginx && sudo ./.temp/nginx-run.sh
     - sudo make eXist && sudo ./.temp/eXist-run.sh
 script:
-- prove -v t/test.t
+- prove -v 

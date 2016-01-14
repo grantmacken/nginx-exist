@@ -59,7 +59,7 @@ $(TEMP_DIR)/eXist.expect: $(TEMP_DIR)/wget-eXist.log
 	@echo '-------------------------------------------------------------------'
 
 $(TEMP_DIR)/eXist-expect.log: $(TEMP_DIR)/eXist.expect
-	@echo "## $(notdir $@) ##"
+	@echo "{{{## $(notdir $@) ##"
 	@echo "$(EXIST_HOME)"
 	@cat $(<)
 	@$(if $(shell curl -I -s -f 'http://localhost:8080/' ),\
@@ -72,7 +72,7 @@ $(TEMP_DIR)/eXist-expect.log: $(TEMP_DIR)/eXist.expect
 	@echo "Install eXist via expect script. Be Patient! this can take a few minutes"
 	@$(<) | tee $(@)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
-	@echo '-------------------------------------------------------------------'
+	@echo '}}}'
 
 $(TEMP_DIR)/eXist-run.sh: $(TEMP_DIR)/eXist-expect.log
 	@echo "{{{## $(notdir $@) ##"
@@ -115,20 +115,6 @@ $(TEMP_DIR)/exist.service: $(TEMP_DIR)/eXist-expect.log
 
 webdav:  $(TEMP_DIR)/webdav.log
 
-$(TEMP_DIR)/webdav.expect:
-	@echo '{{{ $(notdir $@) '
-	@echo 'creating webdav expect file'
-	@echo '#!$(EXPECT) -d -f' > $(@)
-	@echo ''  >> $(@)
-	@echo 'spawn dpkg-reconfigure davfs2 -freadline'  >> $(@)
-	@echo 'expect "Should" { send "y\n" }'  >> $(@)
-	@echo ''  >> $(@)
-	@echo 'send_user "\nuser should be able to mount eXistdb as a file system"'  >> $(@)
-	@echo 'send "exit\r"'  >> $(@)
-	@echo 'close'  >> $(@)
-	@chmod +x $(@)
-	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
-	@echo '---}}}'
 
 $(TEMP_DIR)/webdav.log: 
 	@echo '{{{ $(notdir $@) '
@@ -142,7 +128,7 @@ $(TEMP_DIR)/webdav.log:
  $(info OK! there is davfs2 group),\
  groupadd davfs2 && usermod -aG davfs2 $(SUDO_USER) && groups davfs2 )
 	@$(info CHECK -  if user belongs to davfs2 group )
-	@$(if $(shell echo "$$(id gmack 2>/dev/null | grep -oP '(\Kdavfs2)')"),\
+	@$(if $(shell echo "$$(id $(SUDO_USER) 2>/dev/null | grep -oP '(\Kdavfs2)')"),\
  $(info OK! user belongs to davfs2 group),\
  usermod -aG davfs2 $(SUDO_USER) && echo 'Need to refresh group membership by *logging out* ' )
 	@$(info CHECK -   have $(HOME)/eXist davfs mount point in fstab)
