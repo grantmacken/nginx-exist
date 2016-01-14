@@ -7,10 +7,10 @@ NGINX_VERSION := $(TEMP_DIR)/nginx-latest.version
 NGINX_VERSION_OPTION := mainline
 NGINX_CONFIG := $(NGINX_HOME)/conf/nginx.conf
 
-chkWhichNginx := $(shell which nginx)
-installedNginxVersion := $(if $(chkWhichNginx),\
-$(shell  $(chkWhichNginx) -v 2>&1 | grep -oP '\K[0-9]+\.[0-9]+\.[0-9_]+' ),)
-$(info install nginx version - $(installedNginxVersion))
+# chkWhichNginx := $(shell which nginx)
+# installedNginxVersion := $(if $(chkWhichNginx),\
+# $(shell  $(chkWhichNginx) -v 2>&1 | grep -oP '\K[0-9]+\.[0-9]+\.[0-9_]+' ),)
+# $(info install nginx version - $(installedNginxVersion))
 $(info nginx home - $(NGINX_HOME))
 
 getSRCVAR = $(shell echo '$1_ver' | tr 'a-z' 'A-Z')

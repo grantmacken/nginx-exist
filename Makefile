@@ -23,7 +23,6 @@ INSTALLER := $(if $(SUDO_USER),$(SUDO_USER),$(WHOAMI))
 MAKE_VERSION := $(shell make --version | head -1)
 SYSTEMD := $(shell ps -p1 | grep systemd )
 TEMP_DIR := .temp
-
 $(info who am i - $(WHOAMI))
 $(info SUDO USER - $(SUDO_USER))
 $(info make version - $(MAKE_VERSION))
@@ -49,6 +48,15 @@ $(if $(ACCESS_TOKEN),\
 P := $(if $(ACCESS_TOKEN),$(ACCESS_TOKEN),admin)
 
 PROVE := $(shell which prove)
+
+## SETUP ###
+$(if $(wildcard $(TEMP_DIR)/),$(info OK! have temp dir),$(shell mkdir $(TEMP_DIR)))
+$(if $(SUDO_USER),\
+ $(shell \
+ chown $(SUDO_USER)$(:)$(SUDO_USER) $(TEMP_DIR);\
+ if [ -z "$$( cat /etc/hosts | grep -oP '^127\.0\.0\.1\s+\K(example.com)$$')" ] ;\
+ then echo '127.0.0.1  example.com' >> /etc/hosts;fi ),\
+ $(info OK! inital setup )) 
 
 default: build
 

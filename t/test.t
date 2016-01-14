@@ -21,9 +21,9 @@ ok "$( [ -n ${NGINX_HOME} ] )"  "nginx home set: ${NGINX_HOME}"
 
 ok "$( [[ -n "$(curl -I -s -f 'http://127.0.0.1:80/')" ]] )"  'nginx is reachable'
 
-is "$(curl -s http://example.com/test.html | grep -oP 'Powered by Jetty')" \
- 'Powered by Jetty' \
- 'example.com Powered by Jetty' 
+is "$(curl -Is http://example.com | grep -oP 'nginx')" \
+ 'nginx' \
+ 'example.com dns bypass OK' 
 
 
 note "FIN"

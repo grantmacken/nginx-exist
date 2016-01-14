@@ -10,8 +10,6 @@ EXIST_VERSION_SOURCE=https://bintray.com/existdb/releases/exist/_latestVersion
 
 $(EXIST_VERSION):
 	@echo "## $(notdir $@) ##"
-	@if [ -d $(dir $@) ] ;then echo 'temp dir exists';else mkdir $(dir $@) ;fi
-	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(dir $@),)
 	@echo 'fetch the latest eXist version'
 	@curl -s -L  $(EXIST_VERSION_SOURCE) | grep -oP '>\KeXist-db-setup[-\w\.]+' > $@
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
@@ -160,7 +158,6 @@ $(TEMP_DIR)/webdav.log: $(TEMP_DIR)/webdav.expect
 	@cp /etc/davfs2/davfs2.conf $(HOME)/.davfs2/davfs2.conf
 	@cp /etc/davfs2/secrets $(HOME)/.davfs2/secrets
 	@chown -v $(SUDO_USER):davfs2 $(HOME)/.davfs2/*
-	@ls -al $(HOME)/.davfs2
 	@su -c "mount $(HOME)/eXist" -s /bin/sh $(INSTALLER)
 	@su -c "mount | grep -oP '^.+\s$(HOME)/eXist'" -s /bin/sh $(INSTALLER)
 	@echo '-------------}}} '
