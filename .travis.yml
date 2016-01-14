@@ -11,5 +11,6 @@ before_install:
 install:
     - sudo make nginx && sudo ./.temp/nginx-run.sh
     - sudo make eXist && sudo ./.temp/eXist-run.sh
+    - sudo make webdav
 script:
 - prove -v
