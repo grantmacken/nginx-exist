@@ -8,8 +8,8 @@ addons:
 before_install:
       - sudo apt-get -qq update
       - sudo apt-get install -y davfs2          
-      - expect -d -c "spawn sudo dpkg-reconfigure davfs2 -freadline; expect \"*\"; send \"y\\n\"; interact" 
 install:
+    - sudo expect -d -c "spawn dpkg-reconfigure davfs2 -freadline; expect \"*\"; send \"y\\n\"; interact" 
     - sudo make nginx && sudo ./.temp/nginx-run.sh
     - sudo make eXist && sudo ./.temp/eXist-run.sh
 script:
