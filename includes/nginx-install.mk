@@ -49,6 +49,25 @@ define nginxConfig
 	@echo '' >> $1
 endef
 
+define nginxService
+	@echo "creating systemd ngnix.service script"
+	@echo '[Unit]' >> $1
+	@echo '' >> $1
+	@echo 'Description=The nginx HTTP and reverse proxy server' >> $1
+	@echo 'After=network.target' >> $1
+	@echo '' >> $1
+	@echo '[Service]' >> $1
+	@echo 'PIDFile=$(NGINX_HOME)/logs/nginx.pid' >> $1
+	@echo 'ExecStartPre=$(NGINX_HOME)/sbin/nginx -t' >> $1
+	@echo 'ExecStart=$(NGINX_HOME)/sbin/nginx' >> $1
+	@echo 'ExecReload=/bin/kill -s HUP $$MAINPID' >> $1
+	@echo 'ExecStop=/bin/kill -s QUIT $$MAINPID' >> $1
+	@echo 'PrivateTmp=true' >> $1
+	@echo '' >> $1
+	@echo '[Install]' >> $1
+	@echo 'WantedBy=multi-user.target' >> $1
+endef
+
 $(NGINX_VERSION): config
 	@echo "{{{ $(notdir $@) "
 	@if [ -d $(dir $@) ] ;then echo 'temp dir exists';else mkdir $(dir $@) ;fi
@@ -88,30 +107,6 @@ echo "nginx config ok" > $(dir $@)nginx-tested.log)
 	@$(if $(SUDO_USER),chown $(SUDO_USER) -R $(NGINX_HOME),)
 	@echo '-----------------------------------------------------------------}}}'
 
-# @cp -f -v nginx-config/common/* $(NGINX_HOME)/conf
-# @cp -f -v nginx-config/prod/* $(NGINX_HOME)/conf
-# @mv -f -v $(NGINX_HOME)/conf/nginx-prod.conf $(NGINX_HOME)/conf/nginx.conf
-# $(TEMP_DIR)/nginx_ssl_install.log: $(TEMP_DIR)/curl-nginx.log
-# @echo 'fetch the latest opnssl version'
-# @echo OPENSSL_VER=$$( \
-# curl -s 'https://www.openssl.org/source/' |  \
-# grep -oP '>openssl-\K[0-9a-z\.]+(?=\.tar\.gz)' |  \
-# tail -1 ) >> $(@)
- # curl $(OPENSSL_DOWNLOAD)/$(call getVERSION,$<,openssl) | \
- # tar xz --directory $(dir $@)
- # echo "$(PCRE_DOWNLOAD)/$(call getVERSION,$<,pcre)" && \
- # curl $(OPENSSL_DOWNLOAD)/$(call getVERSION,$<,openssl) | \
- # tar xz --directory $(dir $@)
-# @echo "{{{ $(notdir $@) "
-# source $(NGINX_VERSION); cd $(dir $(@))/nginx-$${NGINX_VER} ;\
-# ./configure   --with-select_module  \
-# --with-pcre="../pcre-$${PCRE_VER}" \
-# --with-http_ssl_module \
-# --with-openssl="../openssl-$${OPENSSL_VER}" \
-# --with-zlib="../zlib-$${ZLIB_VER}" \
-# --with-http_gzip_static_module && make && make install
-# @$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
-# @echo '-----------------------------------------------------------------}}}'
 
 $(TEMP_DIR)/nginx-run.sh: $(TEMP_DIR)/nginx-tested.log
 	@echo "{{{ $(notdir $@) "
@@ -135,4 +130,18 @@ mv $@ $(dir $@)$(addprefix tested-,$(notdir $@)) && \
 echo "nginx config ok" > $(dir $@)nginx-tested.log && \
 $(NGINX_HOME)/sbin/nginx -s reload )
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(dir $@)nginx-tested.log,)
-	@echo '-----------------------------------------------------------------}}}'
+	@echo '}}}'
+
+$(TEMP_DIR)/nginx.service:
+	@echo "{{{ $(notdir $@) "
+	$(if $(shell ps -p1 | grep systemd ),\
+ $(info  OK init system is systemd),\
+ $(error init system is not systemd) )
+	@$(call assert-is-root)
+	$(call  nginxService, $@)
+	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
+	@cp -f $@ /lib/systemd/system/$(notdir $@)
+	@systemd-analyze verify $(notdir $@)
+	@systemctl enable  $(notdir $@)
+	@systemctl start  $(notdir $@)
+	@echo '}}}'

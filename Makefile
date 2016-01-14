@@ -73,6 +73,8 @@ nginx-config: $(TEMP_DIR)/nginx.conf
 
 exist-service:  $(TEMP_DIR)/exist.service
 
+nginx-service:  $(TEMP_DIR)/nginx.service
+
 help:
 	$(info install exist)
 
