@@ -117,11 +117,11 @@ webdav:  $(TEMP_DIR)/webdav.log
 
 $(TEMP_DIR)/webdav.log: 
 	@echo '{{{ $(notdir $@) '
+	@$(call assert-is-root)
 	@$(info CHECK -  mount.davfs suid flag set for user, allowing user to mount webdav)
-	@$(if $(shell test -u /usr/sbin/mount.davfs && echo 'true'),\
- $(info OK! mount.davfs suid flag set),\
- expect -c "spawn  dpkg-reconfigure davfs2 -freadline; expect \"Should\"; send \"y\\n\"; interact" &&\
- test -u /usr/sbin/mount.davfs && echo 'set suid for mount.davfs')
+	@$(if $(TRAVIS),,\
+ test -u /usr/sbin/mount.davfs || \
+ $(EXPECT) -c "spawn  dpkg-reconfigure davfs2 -freadline; expect \"Should\"; send \"y\\n\"; interact" )
 	@$(info CHECK -  if there is a davfs group )
 	@$(if $(shell echo "$$(groups davfs2 2>/dev/null)"),\
  $(info OK! there is davfs2 group),\
@@ -145,6 +145,7 @@ $(TEMP_DIR)/webdav.log:
 	@cp /etc/davfs2/davfs2.conf $(HOME)/.davfs2/davfs2.conf
 	@cp /etc/davfs2/secrets $(HOME)/.davfs2/secrets
 	@chown -v $(SUDO_USER):davfs2 $(HOME)/.davfs2/*
-	@su -c "mount $(HOME)/eXist" -s /bin/sh $(INSTALLER)
-	@su -c "mount | grep -oP '^.+\s$(HOME)/eXist'" -s /bin/sh $(INSTALLER)
+	@$(if $(TRAVIS),\
+ mount $(HOME)/eXist,\
+ su -c "mount $(HOME)/eXist" -s /bin/sh $(INSTALLER))
 	@echo '-------------}}} '

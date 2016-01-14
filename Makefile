@@ -20,6 +20,13 @@ $(colon) := :
 SUDO_USER := $(shell echo "$${SUDO_USER}")
 WHOAMI := $(shell whoami)
 INSTALLER := $(if $(SUDO_USER),$(SUDO_USER),$(WHOAMI))
+
+ifeq ($(INSTALLER),travis)
+ TRAVIS := $(INSTALLER)
+else
+ TRAVIS =
+endif
+
 MAKE_VERSION := $(shell make --version | head -1)
 SYSTEMD := $(shell ps -p1 | grep systemd )
 TEMP_DIR := .temp

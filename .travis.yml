@@ -9,7 +9,6 @@ before_install:
       - sudo apt-get -qq update
       - sudo apt-get install -y davfs2
 install:
-    - sudo chmod 4750 /usr/sbin/mount.davfs && sudo usermod -aG davfs2 $USER 
     - sudo make nginx && sudo ./.temp/nginx-run.sh
     - sudo make eXist && sudo ./.temp/eXist-run.sh
     - sudo make webdav
