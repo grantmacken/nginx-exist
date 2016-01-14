@@ -32,12 +32,12 @@ settings.
 
 ##Testing 1, 2, 3
 
-The install is run on [Travis-ci](https://travis-ci.org/grantmacken/nginx-exist)
+ Please check the install as run on [Travis-ci](https://travis-ci.org/grantmacken/nginx-exist)
  [![status](https://travis-ci.org/grantmacken/nginx-exist.svg)](
- https://travis-ci.org/grantmacken/nginx-exist )
+ https://travis-ci.org/grantmacken/nginx-exist ).
 
 Tests are in the t directory. Tests are invoked using `prove -v` and use tap output.
-Test are written in bash using test-more-bash. 
+Test plans are written in bash using test-more-bash. 
 
 Setting up eXist.
 -----------------
@@ -57,17 +57,13 @@ gnu Make, expect, git, curl, wget, java 8 ( I'll include my install script for t
 
  Install Location:
  On our local machine I install eXist into '/usr/local' (see congfig)
- /usr/local out of the box is owned by root, so I change this by `sudo chown -R $USER /usr/local
- 
- Because we are changing some system files we will need to run as sudo, however when when you 
- ssh to your remote VPS, you should be root so no need to sudo
+ /usr/local out of the box is owned by root, so I change this by `sudo chown -R $USER /usr/local. Because we are changing some system files we will need to run as sudo, however when when you ssh to your remote VPS, you should be root so no need to sudo
 
-Unless we are changing stystem files the makefile will change ownership back to
-user. 
+The Make script will change ownership back to user, unless we are changing system files  
 
-Install: cd into this directory a run `sudo make`
+Install: cd into this directory a run `sudo make eXist`
 
-This will
+This will 
 1. establish the latest eXist version
 2. download latest eXist install jar
 3. create the expect install script. This is used to automate installation
@@ -80,8 +76,11 @@ Other make targets
  
  This will:
  1. create a systemd exist.service script
- 2. service enables 2 env constants EXIST_HOME, SERVER which should be seen by eXit
  2. enable and start the service
+       
+exist.service  sets 2 env constants which should be seen by eXist 
+1. EXIST_HOME
+2. SERVER     which will be either development or production
 
 ##Passwords and Permissions##
 
@@ -97,4 +96,3 @@ The setup is capable of serving **multiple web-site domains** without altering t
 The aim is to make it as simple as possible to set up local development and
 remote production servers for hosting websites.
 
-`systemctl set-environment SERVER=development`
