@@ -116,11 +116,15 @@ $(TEMP_DIR)/exist.service: $(TEMP_DIR)/eXist-expect.log
 webdav:  $(TEMP_DIR)/webdav.log
 
 $(TEMP_DIR)/webdav.expect:
-	@echo "{{{ $(notdir $@) ##"
+	@echo '{{{ $(notdir $@) '
 	@echo 'creating webdav expect file'
 	@echo '#!$(EXPECT) -f' > $(@)
-	@echo 'spawn dpkg-reconfigure davfs2 -freadline' >> $(@)
+	@echo ''  >> $(@)
+	@echo 'spawn dpkg-reconfigure davfs2 -freadline'  >> $(@)
 	@echo 'expect "Should" { send "Y\n" }'  >> $(@)
+	@echo ''  >> $(@)
+	@echo '# done'  >> $(@)
+	@echo 'expect eof'  >> $(@)
 	@chmod +x $(@)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '---}}}'

@@ -7,7 +7,7 @@ addons:
         - expect
 before_install:
       - sudo apt-get -qq update
-      - sudo apt-get install -y davfs2
+      - sudo apt-get install -y davfs2          
 install:
     - sudo make nginx && sudo ./.temp/nginx-run.sh
     - sudo make eXist && sudo ./.temp/eXist-run.sh
