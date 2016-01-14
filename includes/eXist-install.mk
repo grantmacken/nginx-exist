@@ -123,8 +123,9 @@ $(TEMP_DIR)/webdav.expect:
 	@echo 'spawn dpkg-reconfigure davfs2 -freadline'  >> $(@)
 	@echo 'expect "Should" { send "Y\n" }'  >> $(@)
 	@echo ''  >> $(@)
-	@echo '# done'  >> $(@)
-	@echo 'expect eof'  >> $(@)
+	@echo 'send_user "\nuser should be able to mount eXistdb as a file system"'  >> $(@)
+	@echo 'send "exit\r"'  >> $(@)
+	@echo 'close'  >> $(@)
 	@chmod +x $(@)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '---}}}'
