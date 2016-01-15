@@ -37,7 +37,7 @@ settings.
  https://travis-ci.org/grantmacken/nginx-exist ).
 
 Tests are in the t directory. Tests are invoked using `prove -v` and use tap output.
-Test plans are written in bash using test-more-bash. 
+Test plans are written in bash using test-more-bash.
 
 Setting up eXist.
 -----------------
@@ -59,28 +59,36 @@ gnu Make, expect, git, curl, wget, java 8 ( I'll include my install script for t
  On our local machine I install eXist into '/usr/local' (see congfig)
  /usr/local out of the box is owned by root, so I change this by `sudo chown -R $USER /usr/local. Because we are changing some system files we will need to run as sudo, however when when you ssh to your remote VPS, you should be root so no need to sudo
 
-The Make script will change ownership back to user, unless we are changing system files  
+The Make script will change ownership back to user, unless we are changing system files
 
 Install: cd into this directory a run `sudo make eXist`
 
-This will 
+This will
 1. establish the latest eXist version
 2. download latest eXist install jar
 3. create the expect install script. This is used to automate installation
 4. run the expect script to install eXist to location nominated in config
    defaults to '/usr/local/eXist'
 
-Other make targets                     
+Other make targets
 
- `sudo make exist-service` 
- 
+ `sudo make exist-service`
+
  This will:
  1. create a systemd exist.service script
  2. enable and start the service
-       
-exist.service  sets 2 env constants which should be seen by eXist 
+
+exist.service sets 2 env constants which should be seen by eXist
 1. EXIST_HOME
 2. SERVER     which will be either development or production
+
+ `sudo make webdav`
+
+This will setup a eXit webdav mount in your home dir `~/eXist`.
+It will allow you to browse your eXist database as a system file system.
+This can be a bit tricky to setup
+
+Note: do not do this on your VPS production server
 
 ##Passwords and Permissions##
 
@@ -95,4 +103,14 @@ The setup is capable of serving **multiple web-site domains** without altering t
 
 The aim is to make it as simple as possible to set up local development and
 remote production servers for hosting websites.
+
+To install run `sudo make nginx`
+
+This will:
+1. install latest nginx from source. It will also down the pcre and zlib sources to include in the install
+2. create a nginx config file that will enable nginx to act as a reverse proxy
+   for eXist
+
+To create an example website the Make creates a dns bypass for the example.com
+domain in /etc/hosts 
 
