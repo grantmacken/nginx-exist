@@ -6,6 +6,17 @@ If it gets to untidy I will add make includes. I am pretty new to Make, so feel
 free to point out a better way of doing things.  Why I choose Make, is outlined in
 the reasons given by [Mike Bostock](http://bost.ocks.org/mike/make/)
 
+## quick-list make targets
+
+NOTE: run as sudo
+
+1. `make eXist` automated eXist console install from latest release 
+2. `make nginx` compile nginx from latest 'mainline' source files
+3. `make nginx-conf` reset and test nginx config then reload nginx 
+4. `make nginx-service`  loaNOTE: run as sudo
+5. `make exist-service` load on boot service under systemd 
+6. `make webdav` automated webdav install (only for local machine not VPS)
+
 ---------------------------------------------------------------------------------
 
 **Nginx** as a reverse proxy and cache server for the eXist-db Application
