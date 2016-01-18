@@ -181,7 +181,6 @@ $(TEMP_DIR)/deploy.sh: $(TEMP_DIR)/download_url.txt
 	@echo ' java -jar $(EXIST_HOME)/start.jar client -sqx -u admin -P $(P) | tail -1' >> $@
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@chmod +x $(@)
-	@touch  $<
 	@echo '---------}}}'
 
 
