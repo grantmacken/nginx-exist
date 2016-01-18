@@ -13,7 +13,7 @@ NOTE: run as sudo
 1. `make eXist` automated eXist console install from latest release 
 2. `make nginx` compile nginx from latest 'mainline' source files
 3. `make nginx-conf` reset and test nginx config then reload nginx 
-4. `make nginx-service`  loaNOTE: run as sudo
+4. `make nginx-service`  load on boot service under systemd
 5. `make exist-service` load on boot service under systemd 
 6. `make webdav` automated webdav install (only for local machine not VPS)
 

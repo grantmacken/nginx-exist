@@ -113,6 +113,26 @@ $(TEMP_DIR)/exist.service: $(TEMP_DIR)/eXist-expect.log
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '-----}}}'
 
+.PHONY: git-user-as-eXist-user
+
+git-user-as-eXist-user:
+	@cd $(EXIST_HOME) && echo 'sm:find-users-by-username("admin")' |\
+ java -jar $(EXIST_HOME)/start.jar client -sqx -u admin -P $(P) | \
+ tail -1 
+	@cd $(EXIST_HOME) && echo 'sm:find-users-by-username("$(GIT_USER)")' |\
+ java -jar $(EXIST_HOME)/start.jar client -sqx -u admin -P $(P) | \
+ tail -1 
+	@cd $(EXIST_HOME) && echo 'sm:create-account( "$(GIT_USER)", "$(P)", "dba" )' | \
+ java -jar $(EXIST_HOME)/start.jar client -sqx -u admin -P $(P) | \
+ tail -1 
+	@cd $(EXIST_HOME) && echo 'sm:find-users-by-username("$(GIT_USER)")' |\
+ java -jar $(EXIST_HOME)/start.jar client -sqx -u admin -P $(P) | \
+ tail -1 
+
+
+ # sm:create-account( '$(GIT_USER)', '$(P)', 'dba' ) | \
+ # java -jar $(EXIST_HOME)/start.jar client -sqx -u admin -P $(P) 
+
 webdav:  $(TEMP_DIR)/webdav.log
 
 $(TEMP_DIR)/webdav.log: 

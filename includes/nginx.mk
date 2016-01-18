@@ -35,6 +35,15 @@ define nginxConfig
 	@echo '    listen 80 default deferred;' >> $1
 	@echo '    server_name ~^(www\.)?(?<domain>.+)$$;' >> $1
 	@echo '' >> $1
+	@echo '    root  $(EXIST_HOME)/$(EXIST_DATA_DIR)/fs/db/apps/$$domain;' >> $1
+	@echo '' >> $1
+	@echo '    rewrite "^/?(?:index|index.html)?$$" /index.html break;' >> $1
+	@echo '    rewrite "^/?icons$$" /resources/icons/icons.svg break;' >> $1
+	@echo '    rewrite "^/?styles$$" /resources/styles/main.css break;' >> $1
+	@echo '    rewrite "^/?scripts$$" /resources/scripts/main.js break;' >> $1
+	@echo '    rewrite "^/?([\w\-_]+)/?(?:index|index.html)?$$" /$$1/index.html break;' >> $1
+	@echo '    rewrite "^/?(((?:[\w\-_]+)/)+(?:[\w\-_]+))(?:\.(htm(l)?|md))?$$"  /$$1.html break;' >> $1
+	@echo '' >> $1
 	@echo '    location ~* ^(.*)\.html$$ {' >> $1
 	@echo '      try_files $$uri @proxy;' >> $1
 	@echo '      proxy_pass http://localhost:8080;' >> $1
