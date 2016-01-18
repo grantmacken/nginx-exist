@@ -171,7 +171,8 @@ $(TEMP_DIR)/download_url.txt:
 	@curl -s x https://api.github.com/repos/$(DEPLOY)/releases/latest | \
  jq '.assets[] | .browser_download_url'  >> $@
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
-	@echo '---------}}}'
+	@cat $@
+	@echo '}}}'
 
 $(TEMP_DIR)/deploy.sh: $(TEMP_DIR)/download_url.txt
 	@echo "{{{## $(notdir $@) ##"
@@ -181,7 +182,8 @@ $(TEMP_DIR)/deploy.sh: $(TEMP_DIR)/download_url.txt
 	@echo ' java -jar $(EXIST_HOME)/start.jar client -sqx -u admin -P $(P) | tail -1' >> $@
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@chmod +x $(@)
-	@echo '---------}}}'
+	@cat $@
+	@echo '}}}'
 
 
 
