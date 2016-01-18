@@ -4,4 +4,4 @@ ACCESS_TOKEN_PATH=../.access-token
 TEMP_DIR=.temp
 NGINX_HOME=/usr/local/nginx
 WEBDAV=~/eXist
-HOST=zie.nz
+DEPLOY=grantmacken/example.com

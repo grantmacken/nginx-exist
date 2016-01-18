@@ -118,24 +118,19 @@ $(TEMP_DIR)/exist.service: $(TEMP_DIR)/eXist-expect.log
 git-user-as-eXist-user:
 	@cd $(EXIST_HOME) && echo 'sm:find-users-by-username("admin")' |\
  java -jar $(EXIST_HOME)/start.jar client -sqx -u admin -P $(P) | \
- tail -1 
+ tail -1
 	@cd $(EXIST_HOME) && echo 'sm:find-users-by-username("$(GIT_USER)")' |\
  java -jar $(EXIST_HOME)/start.jar client -sqx -u admin -P $(P) | \
- tail -1 
+ tail -1
 	@cd $(EXIST_HOME) && echo 'sm:create-account( "$(GIT_USER)", "$(P)", "dba" )' | \
  java -jar $(EXIST_HOME)/start.jar client -sqx -u admin -P $(P) | \
- tail -1 
+ tail -1
 	@cd $(EXIST_HOME) && echo 'sm:find-users-by-username("$(GIT_USER)")' |\
  java -jar $(EXIST_HOME)/start.jar client -sqx -u admin -P $(P) | \
- tail -1 
+ tail -1
 
 
- # sm:create-account( '$(GIT_USER)', '$(P)', 'dba' ) | \
- # java -jar $(EXIST_HOME)/start.jar client -sqx -u admin -P $(P) 
-
-webdav:  $(TEMP_DIR)/webdav.log
-
-$(TEMP_DIR)/webdav.log: 
+$(TEMP_DIR)/webdav.log:
 	@echo '{{{ $(notdir $@) '
 	@$(call assert-is-root)
 	@$(info CHECK -  mount.davfs suid flag set for user, allowing user to mount webdav)
@@ -169,3 +164,26 @@ $(TEMP_DIR)/webdav.log:
  mount $(HOME)/eXist,\
  su -c "mount $(HOME)/eXist" -s /bin/sh $(INSTALLER))
 	@echo '-------------}}} '
+
+
+$(TEMP_DIR)/download_url.txt:
+	@echo "{{{## $(notdir $@) ##"
+	@curl -s x https://api.github.com/repos/$(DEPLOY)/releases/latest | \
+ jq '.assets[] | .browser_download_url'  >> $@
+	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
+	@echo '---------}}}'
+
+$(TEMP_DIR)/deploy.sh: $(TEMP_DIR)/download_url.txt
+	@echo "{{{## $(notdir $@) ##"
+	@echo '#!/usr/bin/env bash' > $(@)
+	@echo 'cd $(EXIST_HOME)' >> $(@)
+	@echo "echo \"repo:install-and-deploy('$(WEBSITE)','$(shell cat $<)')\" | \\" >> $@
+	@echo ' java -jar $(EXIST_HOME)/start.jar client -sqx -u admin -P $(P) | tail -1' >> $@
+	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
+	@chmod +x $(@)
+	@touch  $<
+	@echo '---------}}}'
+
+
+
+

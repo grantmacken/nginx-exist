@@ -27,18 +27,23 @@ else
  TRAVIS =
 endif
 
+REPO  := $(shell  echo '$(DEPLOY)' | cut -d/ -f2 )
+OWNER := $(shell echo $(DEPLOY) |cut -d/ -f1 )
+WEBSITE := $(addprefix http://,$(REPO))
 MAKE_VERSION := $(shell make --version | head -1)
 SYSTEMD := $(shell ps -p1 | grep systemd )
 TEMP_DIR := .temp
-$(info who am i - $(WHOAMI))
-$(info SUDO USER - $(SUDO_USER))
-$(info make version - $(MAKE_VERSION))
-$(info system - $(SYSTEMD))
-$(info current working directory - $(shell pwd))
-$(info which - $(shell which netstat))
-$(info eXist home - $(EXIST_HOME))
-$(info  travis repo slug- $(TRAVIS_REPO_SLUG))
+# $(info who am i - $(WHOAMI))
+# $(info SUDO USER - $(SUDO_USER))
+# $(info make version - $(MAKE_VERSION))
+# $(info system - $(SYSTEMD))
+# $(info current working directory - $(shell pwd))
+# $(info which - $(shell which netstat))
+# $(info eXist home - $(EXIST_HOME))
 $(info  travis java  home - $(JAVA_HOME))
+$(info  repo - $(REPO))
+$(info  owner - $(OWNER))
+$(info  website - $(WEBSITE))
 
 EXIST_VERSION := $(TEMP_DIR)/eXist-latest.version
 
@@ -63,12 +68,11 @@ $(if $(SUDO_USER),\
  chown $(SUDO_USER)$(:)$(SUDO_USER) $(TEMP_DIR);\
  if [ -z "$$( cat /etc/hosts | grep -oP '^127\.0\.0\.1\s+\K(example.com)$$')" ] ;\
  then echo '127.0.0.1  example.com' >> /etc/hosts;fi ),\
- $(info OK! inital setup )) 
+ $(info OK! inital setup ))
 
 default: build
 
-include includes/eXist-install.mk
-include includes/nginx-install.mk
+include includes/*
 
 .PHONY: help test
 
@@ -78,12 +82,16 @@ nginx: $(TEMP_DIR)/nginx-run.sh
 
 nginx-config: $(TEMP_DIR)/nginx.conf
 
-exist-service:  $(TEMP_DIR)/exist.service
-
 nginx-service:  $(TEMP_DIR)/nginx.service
 
+exist-service:  $(TEMP_DIR)/exist.service
+
+webdav:  $(TEMP_DIR)/webdav.log
+
+deploy:  $(TEMP_DIR)/deploy.sh
+
 help:
-	$(info install exist)
+	@cat README.md
 
 test:
 	@$(PROVE) $(abspath t/test.t)
