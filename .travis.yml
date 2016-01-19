@@ -6,7 +6,7 @@ addons:
         packages:
         - expect
 before_install:
-      - sudo source config;REPO="$(echo ${DEPLOY} | cut -d/ -f2 )";[ -z "$( echo $(< /etc/hosts) | grep ${REPO})" ] && echo "127.0.0.1  ${REPO}" >> /etc/hosts
+      - sudo source config; echo "127.0.0.1  $(echo ${DEPLOY} | cut -d/ -f2 )" >> /etc/hosts
 install:
     - sudo make nginx && sudo ./.temp/nginx-run.sh
 script:
