@@ -1,14 +1,12 @@
-#!/usr/bin/env bash 
+#!/usr/bin/env bash
 source config
 REPO="$(echo ${DEPLOY} | cut -d/ -f2 )"
 OWNER="$(echo ${DEPLOY} | cut -d/ -f1 )"
 HOSTS="127.0.0.1  ${REPO}"
 P=admin
 if [ -e ${ACCESS_TOKEN_PATH} ] ;then P="$(<${ACCESS_TOKEN_PATH})";fi
-[ -z "$( echo $(< /etc/hosts) | grep ${REPO})" ] && \
- echo "127.0.0.1  ${REPO}" >> /etc/hosts
 
-cmdClient="java -jar ${EXIST_HOME}/start.jar client -sqx -u admin -P ${P}" 
+cmdClient="java -jar ${EXIST_HOME}/start.jar client -sqx -u admin -P ${P}"
 
 TEST_MORE_PATH='test-more-bash'
 BASHLIB="$(

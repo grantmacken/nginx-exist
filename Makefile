@@ -65,8 +65,15 @@ chownToUser = $(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $1,)
 $(if $(wildcard $(T)/),,$(shell mkdir $(T)))
 $(call chownToUser,$(T))
 
-PROVE := $(shell which prove)
+$(info website - $(REPO))
+dnsByPass := $(shell echo "$$( cat /etc/hosts | grep $(REPO))")
+$(info dns by pass - $(dnsByPass))
 
+$(if $(dnsByPass),\
+ $(info dns bypass for $(REPO) has been setup),\
+ $(shell echo "127.0.0.1  $(REPO)" >> /etc/hosts))
+
+PROVE := $(shell which prove)
 default: build
 
 include includes/nginx.mk
