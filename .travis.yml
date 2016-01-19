@@ -9,8 +9,6 @@ before_install:
       - true
 install:
     - sudo make nginx && sudo ./.temp/nginx-run.sh
-    - sudo make eXist && sudo ./.temp/eXist-run.sh
-    - make deploy && ./.temp/deploy.sh
 script:
-    - prove -v  t/nginx.t t/eXist.t t/deploy.t
+    - prove -v  t/nginx.t
 
