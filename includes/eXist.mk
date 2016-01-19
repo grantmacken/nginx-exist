@@ -186,6 +186,3 @@ $(T)/deploy.sh: $(T)/download_url.txt
 	@cat $@
 	@echo '}}}'
 
-
-
-
