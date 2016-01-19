@@ -28,21 +28,21 @@ define nginxConfig
 	@echo '' >> $1
 	@echo 'http {' >> $1
 	@echo '  include mime.types;' >> $1
+	@echo '  include gzip.conf;' >> $1
+	@echo '  include proxy-defaults.conf;' >> $1
 	@echo '  default_type application/octet-stream;' >> $1
 	@echo '  sendfile on;' >> $1
 	@echo '  keepalive_timeout 65;' >> $1
 	@echo '  server {' >> $1
 	@echo '    listen 80 default deferred;' >> $1
+	@echo '    charset utf-8;' >> $1
 	@echo '    server_name ~^(www\.)?(?<domain>.+)$$;' >> $1
 	@echo '' >> $1
 	@echo '    root  $(EXIST_HOME)/$(EXIST_DATA_DIR)/fs/db/apps/$$domain;' >> $1
 	@echo '' >> $1
-	@echo '    rewrite "^/?(?:index|index.html)?$$" /index.html break;' >> $1
-	@echo '    rewrite "^/?icons$$" /resources/icons/icons.svg break;' >> $1
-	@echo '    rewrite "^/?styles$$" /resources/styles/main.css break;' >> $1
-	@echo '    rewrite "^/?scripts$$" /resources/scripts/main.js break;' >> $1
-	@echo '    rewrite "^/?([\w\-_]+)/?(?:index|index.html)?$$" /$$1/index.html break;' >> $1
-	@echo '    rewrite "^/?(((?:[\w\-_]+)/)+(?:[\w\-_]+))(?:\.(htm(l)?|md))?$$"  /$$1.html break;' >> $1
+	@echo '    include server-rewrites.conf;' >> $1
+	@echo '    include server-locations.conf;' >> $1
+	@echo '' >> $1
 	@echo '' >> $1
 	@echo '    location ~* ^(.*)\.html$$ {' >> $1
 	@echo '      try_files $$uri @proxy;' >> $1
@@ -53,6 +53,37 @@ define nginxConfig
 	@echo '      rewrite ^/?(.*)$$ /exist/apps/$$domain/$$1 break;' >> $1
 	@echo '      proxy_pass http://localhost:8080;' >> $1
 	@echo '    }' >> $1
+	@echo '  }' >> $1
+	@echo '}' >> $1
+	@echo '' >> $1
+endef
+
+define nginxMinConfig
+	@echo "configure nginx so it acts as a reverse proxy for eXist"
+	@echo 'set one worker per core'
+	@echo 'worker_processes $(shell grep ^proces /proc/cpuinfo | wc -l );' > $1
+	@cat $1 | tail -1
+	@echo '' >> $1
+	@echo 'events {' >> $1
+	@echo '  worker_connections  1024;' >> $1
+	@echo '}' >> $1
+	@echo '' >> $1
+	@echo 'http {' >> $1
+	@echo '  include mime.types;' >> $1  
+	@echo '  proxy_set_header  Host  $host;' >> $1 
+	@echo '  proxy_set_header  X-Real-IP  $remote_addr;' >> $1 
+	@echo '  proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;' >> $1 
+	@echo '  proxy_set_header  nginx-request-uri  $request_uri;' >> $1 
+	@echo '  server {' >> $1
+	@echo '    listen 80;' >> $1
+	@echo '    server_name ~^(www\.)?(?<domain>.+)$$;' >> $1
+	@echo '    charset utf-8;' >> $1
+	@echo '' >> $1
+	@echo '    location ~* ^(.*)\.html$$ {' >> $1
+	@echo '      rewrite ^/?(.*)$$ /exist/apps/$$domain/$$1 break;' >> $1
+	@echo '      proxy_pass http://localhost:8080;' >> $1
+	@echo '    }' >> $1
+	@echo '' >> $1
 	@echo '  }' >> $1
 	@echo '}' >> $1
 	@echo '' >> $1
@@ -108,6 +139,7 @@ $(TEMP_DIR)/nginx-tested.log: $(NGINX_VERSION)
  --with-http_gzip_static_module && make && make install
 	@if [ -d $(NGINX_HOME)/proxy ] ; then mkdir $(NGINX_HOME)/proxy ;fi
 	@if [ -d $(NGINX_HOME)/cache ] ; then mkdir $(NGINX_HOME)/cache ;fi    
+	@cp -f -v includes/nginx-config/* /usr/local/nginx/conf 
 	$(call  nginxConfig, $@)
 	@$(if $(shell echo "$$($(NGINX_HOME)/sbin/nginx -t -q)"),\
 $(NGINX_HOME)/sbin/nginx -t,\
@@ -133,12 +165,29 @@ $(TEMP_DIR)/nginx.conf:
 	$(call  nginxConfig, $@)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@cp -f $@ $(NGINX_HOME)/conf/nginx.conf
+	@cp -f nginx-config/*  $(NGINX_HOME)/conf
 	@$(if $(shell echo "$$($(NGINX_HOME)/sbin/nginx -t -q)"),\
 $(NGINX_HOME)/sbin/nginx -t,\
 mv $@ $(dir $@)$(addprefix tested-,$(notdir $@)) && \
 echo "nginx config ok" > $(dir $@)nginx-tested.log && \
 $(NGINX_HOME)/sbin/nginx -s reload )
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(dir $@)nginx-tested.log,)
+	@echo '}}}'
+
+
+$(TEMP_DIR)/min-nginx.conf:
+	@echo "{{{ $(notdir $@) "
+	$(call  nginxMinConfig, $@)
+	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
+	@cp -f $@ $(NGINX_HOME)/conf
+	@mv -f $(NGINX_HOME)/conf/$(notdir $@) $(NGINX_HOME)/conf/nginx.conf   
+	@$(if $(shell echo "$$($(NGINX_HOME)/sbin/nginx -t -q)"),\
+$(NGINX_HOME)/sbin/nginx -t,\
+mv $@ $(dir $@)$(addprefix tested-,$(notdir $@)) && \
+echo "nginx config ok" > $(dir $@)nginx-tested.log && \
+$(NGINX_HOME)/sbin/nginx -s reload )
+	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(dir $@)nginx-tested.log,)
+	@cat  $(NGINX_HOME)/conf/nginx.conf 
 	@echo '}}}'
 
 $(TEMP_DIR)/nginx.service:

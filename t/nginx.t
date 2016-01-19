@@ -2,15 +2,20 @@
 source t/setup
 use Test::More
 
-plan tests 3
+plan tests 4
 
 note "test plan for nginx install"
 
 ok "$( [ -n ${NGINX_HOME} ] )"  "nginx home set: ${NGINX_HOME}"
 
-ok "$( [[ -n "$(curl -I -s -f 'http://127.0.0.1:80/')" ]] )"  'nginx is reachable'
+is "$(curl -s -w '%{http_code}' -o /dev/null http://example.com)" \
+    '200' \
+    'curl should get example.com ok' 
 
-is "$(curl -Is http://example.com | grep -oP 'nginx')" \
+is "$(curl -s -w '%{remote_ip}' -o /dev/null http://example.com)" \
+ '127.0.0.1' \
+ 'example.com should should be using dns bypass as established in /etc/hosts' 
+
+is "$(curl -s -D -o /dev/null http://example.com | grep -oP 'nginx')" \
  'nginx' \
- 'example.com dns bypass OK' 
-
+ 'nginx should serve example.com' 
