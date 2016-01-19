@@ -1,6 +1,7 @@
+EXIST_VERSION := $(T)/eXist-latest.version
 # functions
 EXIST_JAR = $(call cat,$(EXIST_VERSION))
-EXIST_JAR_PATH = $(TEMP_DIR)/$(call cat,$(EXIST_VERSION))
+EXIST_JAR_PATH = $(T)/$(call cat,$(EXIST_VERSION))
 # shortcuts
 JAVA := $(shell which java)
 START_JAR := $(JAVA) -Djava.endorsed.dirs=lib/endorsed -jar start.jar
@@ -16,7 +17,7 @@ $(EXIST_VERSION):
 	@cat $@
 	@echo '}}}'
 
-$(TEMP_DIR)/wget-eXist.log: $(EXIST_VERSION)
+$(T)/wget-eXist.log: $(EXIST_VERSION)
 	@echo "{{{## $(notdir $@) ##"
 	@$(if $(call EXIST_JAR),,$(error oh no! this is bad))
 	@echo "EXIST_JAR: $(call EXIST_JAR)"
@@ -30,7 +31,7 @@ $(TEMP_DIR)/wget-eXist.log: $(EXIST_VERSION)
 	@cat $@
 	@echo '}}}'
 
-$(TEMP_DIR)/eXist.expect: $(TEMP_DIR)/wget-eXist.log
+$(T)/eXist.expect: $(T)/wget-eXist.log
 	@echo "{{{## $(notdir $@) ##"
 	@echo 'we have $(call EXIST_JAR)'
 	@echo 'creating expect file'
@@ -58,7 +59,7 @@ $(TEMP_DIR)/eXist.expect: $(TEMP_DIR)/wget-eXist.log
 	@chmod +x $(@)
 	@echo '}}}'
 
-$(TEMP_DIR)/eXist-expect.log: $(TEMP_DIR)/eXist.expect
+$(T)/eXist-expect.log: $(T)/eXist.expect
 	@echo "{{{## $(notdir $@) ##"
 	@echo "$(EXIST_HOME)"
 	@cat $(<)
@@ -74,7 +75,7 @@ $(TEMP_DIR)/eXist-expect.log: $(TEMP_DIR)/eXist.expect
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '}}}'
 
-$(TEMP_DIR)/eXist-run.sh: $(TEMP_DIR)/eXist-expect.log
+$(T)/eXist-run.sh: $(T)/eXist-expect.log
 	@echo "{{{## $(notdir $@) ##"
 	@echo '#!/usr/bin/env bash' > $(@)
 	@echo 'cd $(EXIST_HOME)' >> $(@)
@@ -84,7 +85,7 @@ $(TEMP_DIR)/eXist-run.sh: $(TEMP_DIR)/eXist-expect.log
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '---------}}}'
 
-$(TEMP_DIR)/exist.service: $(TEMP_DIR)/eXist-expect.log
+$(T)/exist.service: $(T)/eXist-expect.log
 	@echo "{{{  $(notdir $@) "
 	$(if $(shell ps -p1 | grep systemd ),\
  $(info  OK init system is systemd),\
@@ -130,7 +131,7 @@ git-user-as-eXist-user:
  tail -1
 
 
-$(TEMP_DIR)/webdav.log:
+$(T)/webdav.log:
 	@echo '{{{ $(notdir $@) '
 	@$(call assert-is-root)
 	@$(info CHECK -  mount.davfs suid flag set for user, allowing user to mount webdav)
@@ -166,7 +167,7 @@ $(TEMP_DIR)/webdav.log:
 	@echo '-------------}}} '
 
 
-$(TEMP_DIR)/download_url.txt:
+$(T)/download_url.txt:
 	@echo "{{{## $(notdir $@) ##"
 	@curl -s x https://api.github.com/repos/$(DEPLOY)/releases/latest | \
  jq '.assets[] | .browser_download_url'  >> $@
@@ -174,7 +175,7 @@ $(TEMP_DIR)/download_url.txt:
 	@cat $@
 	@echo '}}}'
 
-$(TEMP_DIR)/deploy.sh: $(TEMP_DIR)/download_url.txt
+$(T)/deploy.sh: $(T)/download_url.txt
 	@echo "{{{## $(notdir $@) ##"
 	@echo '#!/usr/bin/env bash' > $(@)
 	@echo 'cd $(EXIST_HOME)' >> $(@)

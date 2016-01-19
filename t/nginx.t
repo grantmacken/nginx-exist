@@ -16,6 +16,6 @@ is "$(curl -s -w '%{remote_ip}' -o /dev/null http://example.com)" \
  '127.0.0.1' \
  'example.com should should be using dns bypass as established in /etc/hosts' 
 
-is "$(curl -s -D -o /dev/null http://example.com | grep -oP 'nginx')" \
+is "$(curl -s -D /dev/null  http://example.com | grep -oP 'nginx')" \
  'nginx' \
  'nginx should serve example.com' 

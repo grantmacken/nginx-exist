@@ -8,7 +8,7 @@ plan tests 1
 
 note "test plan for ${REPO} deployment"
 
-is $(echo "xmldb:collection-available('/db/apps/${REPO}')" | ${cmd} |  tail -1 ) \
+is $(echo "xmldb:collection-available('/db/apps/${REPO}')" | ${cmdClient} |  tail -1 ) \
  'true' \
  "app collection ${REPO} should be available in eXist app collection"
 
