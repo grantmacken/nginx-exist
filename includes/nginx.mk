@@ -83,7 +83,6 @@ $(T)/nginx-run.sh: $(T)/nginx-tested.log
 	@echo '#!/usr/bin/env bash' > $(@)
 	@echo 'cd $(NGINX_HOME)/sbin' >> $(@)
 	@echo './nginx &' >> $(@)
-	@echo 'while [[ -z "$$(curl -I -s -f 'http://127.0.0.1:80/')" ]] ; do sleep 5 ; done' >> $(@)
 	@chmod +x $(@)
 	@$(call chownToUser,$(@))
 	@echo '-----------------------------------------------------------------}}}'

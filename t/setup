@@ -5,9 +5,8 @@ OWNER="$(echo ${DEPLOY} | cut -d/ -f1 )"
 HOSTS="127.0.0.1  ${REPO}"
 P=admin
 if [ -e ${ACCESS_TOKEN_PATH} ] ;then P="$(<${ACCESS_TOKEN_PATH})";fi
-# echo "$(< /etc/hosts)" | \
-#     grep -oP "^127\.0\.0\.1\s+\K(${REPO})$" || echo "${HOSTS}" >> /etc/hosts
-# echo "$(< /etc/hosts)" | grep -oP "^127\.0\.0\.1\s+\K(${REPO})$"
+[ -z "$( echo $(< /etc/hosts) | grep ${REPO})" ] && \
+ echo "127.0.0.1  ${REPO}" >> /etc/hosts
 
 cmdClient="java -jar ${EXIST_HOME}/start.jar client -sqx -u admin -P ${P}" 
 
