@@ -11,5 +11,5 @@ install:
     - sudo make nginx && sudo ./.temp/nginx-run.sh
     - sudo make eXist && sudo ./.temp/eXist-run.sh
 script:
-    - prove -v  t/nginx.t t/eXist.t
+  - prove -v - t/travis.txt
 
