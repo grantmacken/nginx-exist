@@ -2,7 +2,6 @@
 source config
 REPO="$(echo ${DEPLOY} | cut -d/ -f2 )"
 OWNER="$(echo ${DEPLOY} | cut -d/ -f1 )"
-HOSTS="127.0.0.1  ${REPO}"
 P=admin
 if [ -e ${ACCESS_TOKEN_PATH} ] ;then P="$(<${ACCESS_TOKEN_PATH})";fi
 
