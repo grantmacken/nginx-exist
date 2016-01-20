@@ -8,8 +8,9 @@ addons:
 before_install:
       - true
 install:
-    - sudo make nginx && sudo ./.temp/nginx-run.sh
-    - sudo make eXist && sudo ./.temp/eXist-run.sh
+  - sudo make build --jobs=2  
+  - sudo ./temp/nginx-run.sh
+  - sudo ./.temp/eXist-run.sh
 script:
-  - prove -v - t/travis.txt
+  - prove -v - < t/travis.txt
 
