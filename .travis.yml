@@ -11,6 +11,7 @@ install:
   - sudo make build --jobs=2  
   - sudo ./.temp/nginx-run.sh
   - sudo ./.temp/eXist-run.sh
+  - sudo make deploy && ./.temp/deploy.sh 
 script:
   - prove -v - < t/travis.txt
 
