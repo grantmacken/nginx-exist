@@ -84,7 +84,7 @@ eXist: $(T)/eXist-run.sh
 
 nginx: $(T)/nginx-run.sh
 
-build: $(eXist) $(nginx)
+build: $(T)/nginx-run.sh $(T)/eXist-run.sh
 
 nginx-config: $(T)/nginx.conf
 
