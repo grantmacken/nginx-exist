@@ -14,6 +14,6 @@ is $(echo "xmldb:collection-available('/db/apps/${REPO}')" | ${cmdClient} |  tai
 
 is "$(curl -s -w '%{http_code}' -o /dev/null ${REPO})" \
     '200' \
-    'GET ${REPO} should respond with http status code 200 ' 
+    "GET ${REPO} should respond with http status code 200 " 
 
 note "FIN"
