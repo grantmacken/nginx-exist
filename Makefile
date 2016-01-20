@@ -76,7 +76,7 @@ $(if $(dnsByPass),\
 PROVE := $(shell which prove)
 default: build
 
-include includes/nginx.mk
+include includes/*
 
 .PHONY: help test
 
