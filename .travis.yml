@@ -9,8 +9,9 @@ addons:
 before_install:
    - which node 
    - which perlbrew  
+   - perlbrew  
 install:
-  - npm install casperjs 
+  - npm install nightmarejs 
   - sudo make build --jobs=2  
   - sudo ./.temp/nginx-run.sh
   - sudo ./.temp/eXist-run.sh
