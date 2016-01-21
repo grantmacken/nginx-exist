@@ -6,7 +6,7 @@ addons:
         packages:
         - expect
 before_install:
-      - true
+   - which nvm 
 install:
   - sudo make build --jobs=2  
   - sudo ./.temp/nginx-run.sh
