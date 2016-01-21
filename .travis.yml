@@ -9,7 +9,7 @@ addons:
 before_install:
    - which node 
    - which perlbrew  
-   - perlbrew  
+   - perlbrew list-modules 
 install:
   - npm install nightmarejs 
   - sudo make build --jobs=2  
