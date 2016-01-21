@@ -5,8 +5,11 @@ addons:
     apt:
         packages:
         - expect
+        - nodejs
 before_install:
    - which nvm 
+   - which node 
+   - which perlbrew  
 install:
   - sudo make build --jobs=2  
   - sudo ./.temp/nginx-run.sh
