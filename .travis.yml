@@ -7,7 +7,6 @@ addons:
         - expect
         - nodejs
 before_install:
-   - which nvm 
    - which node 
    - which perlbrew  
 install:
