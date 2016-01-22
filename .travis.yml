@@ -16,7 +16,7 @@ before_install:
 install:
   - npm install tape
   - npm install casperjs
-  - npm install slimmerjs
+  - npm install slimerjs
   - which casperjs
   - which slimmerjs
   - sudo make build --jobs=2
