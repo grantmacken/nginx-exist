@@ -14,11 +14,7 @@ before_install:
    - perlbrew list-modules
    - which cpanm
 install:
-  - npm install tape
-  - npm install casperjs
-  - npm install slimerjs
-  - which casperjs
-  - which slimerjs
+  - npm install
   - sudo make build --jobs=2
   - sudo ./.temp/nginx-run.sh
   - sudo ./.temp/eXist-run.sh
