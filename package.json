@@ -1,0 +1,11 @@
+{
+    "name": "nginx_exist_example_site",
+    "description": "nginx_exist_example_site",
+    "version": "v0.0.1",
+    "private": "true",
+    "devDependencies":{
+        "nightmarejs": "latest",
+        "tape": "latest"
+    }
+
+}
