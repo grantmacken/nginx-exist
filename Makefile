@@ -100,4 +100,4 @@ help:
 	@cat README.md
 
 test:
-	@$(PROVE) $(abspath t/test.t)
+	@$(PROVE) -v - < t/travis.txt 

@@ -1,21 +1,32 @@
 sudo: required
 dist: trusty
 language: java
+env:
+   - SLIMERJSLAUNCHER=$(which firefox)
 addons:
     apt:
         packages:
         - expect
         - nodejs
 before_install:
-   - which node 
-   - which perlbrew  
-   - perlbrew list-modules 
+   - which node
+   - which perlbrew
+   - perlbrew list-modules
+   - which cpanm
 install:
-  - npm install nightmarejs 
-  - sudo make build --jobs=2  
+  - npm install tape
+  - npm install casperjs
+  - npm install slimmerjs
+  - which casperjs
+  - which slimmerjs
+  - sudo make build --jobs=2
   - sudo ./.temp/nginx-run.sh
   - sudo ./.temp/eXist-run.sh
-  - sudo make deploy && ./.temp/deploy.sh 
+  - sudo make deploy && ./.temp/deploy.sh
+before_script:
+   - "export DISPLAY=:99.0"
+   - "sh -e /etc/init.d/xvfb start"
+   - sleep 3 # give xvfb some time to start
 script:
   - prove -v - < t/travis.txt
 
