@@ -1,3 +1,4 @@
 t/eXist.t
 t/nginx.t
 t/deploy.t
+t/phridge.t

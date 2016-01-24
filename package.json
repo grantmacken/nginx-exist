@@ -4,7 +4,8 @@
     "version": "v0.0.1",
     "private": "true",
     "devDependencies":{
-        "nightmarejs": "latest",
+        "phridge": "latest",
+        "properties-parser": "latest",
         "tape": "latest"
     }
 
