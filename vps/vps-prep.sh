@@ -13,10 +13,11 @@
 ############################################################
 
 clear
-aptList=(cowsay curl expect net-tools ncurses-term vim w3m tidy)
+aptList=(cowsay curl expect net-tools ncurses-term )
 
-aptList2=(git build-essential software-properties-common \
-python-software-properties tmux)
+aptList2=( build-essential software-properties-common \
+python-dev python-pip python3-dev python3-pip \
+git tmux)
 
 echoMD '#UTILITY TOOLS#'
 echoMD "TASK! Use apt-get to install some utility apps"
