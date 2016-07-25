@@ -120,7 +120,6 @@ $(T)/exist.service:
 	@systemd-analyze verify $(notdir $@)
 	@systemctl enable  $(notdir $@)
 	@systemctl start  $(notdir $@)
-	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '}}}'
 
 .PHONY: git-user-as-eXist-user
