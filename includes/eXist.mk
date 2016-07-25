@@ -17,15 +17,17 @@ $(EXIST_VERSION):
 	@cat $@
 	@echo '}}}'
 
-$(T)/wget-eXist.log: $(EXIST_VERSION)
+$(T)/wget-eXist.log:  $(T)/eXist-latest.version
 	@echo "{{{## $(notdir $@) ##"
 	@$(if $(call EXIST_JAR),,$(error oh no! this is bad))
 	@echo "EXIST_JAR: $(call EXIST_JAR)"
 	@echo "EXIST_JAR_PATH: $(call EXIST_JAR_PATH)"
 	@echo "Downloading $(call EXIST_JAR). Be Patient! this can take a few minutes"
-	@wget -o $@ -O "$(call EXIST_JAR_PATH)" \
+	@$(if $(wildcard $(call EXIST_JAR_PATH)),\
+ touch $@,\
+ wget -o $@ -O "$(call EXIST_JAR_PATH)" \
  --trust-server-name  --progress=dot$(:)mega -nc \
- "$(EXIST_DOWNLOAD_SOURCE)/$(call EXIST_JAR)"
+ "$(EXIST_DOWNLOAD_SOURCE)/$(call EXIST_JAR)")
 	echo '# because we use wget with no clobber, if we have source then just touch log'
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@cat $@

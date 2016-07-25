@@ -78,7 +78,10 @@ default: build
 
 include includes/*
 
-.PHONY: help test
+.PHONY: help test clean
+
+clean: 
+	@rm $(EXIST_VERSION)
 
 eXist: $(T)/eXist-run.sh
 
