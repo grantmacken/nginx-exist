@@ -86,35 +86,42 @@ $(T)/eXist-run.sh: $(T)/eXist-expect.log
 	@chmod +x $(@)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '---------}}}'
+	
+define existService
+[Unit]
 
-$(T)/exist.service: $(T)/eXist-expect.log
-	@echo "{{{  $(notdir $@) "
-	$(if $(shell ps -p1 | grep systemd ),\
- $(info  OK init system is systemd),\
- $(error init system is not systemd) )
+Description=The exist db application server
+
+After=network.target
+
+[Service]
+Environment="EXIST_HOME=$(EXIST_HOME)"
+$(if $(SUDO_USER),
+Environment="SERVER=development",
+Environment="SERVER=production")
+WorkingDirectory=$(EXIST_HOME))
+User=$(INSTALLER))
+Group=$(INSTALLER))
+ExecStart=$(START_JAR) jetty)
+ExecStop=$(START_JAR) shutdown -u admin -p $(P) )
+
+[Install])
+WantedBy=multi-user.target)
+endef
+
+$(T)/exist.service: export existService:=$(existService)
+$(T)/exist.service:
+	@echo "{{{ $(notdir $@) "
 	@$(call assert-is-root)
-	@systemctl is-failed exist.service > /dev/null && echo 'OK! unit intentionally stopped'
-	$(file > $(@),[Unit])
-	$(file >> $(@),Description=The exist db application server)
-	$(file >> $(@),After=network.target)
-	$(file >> $(@),)
-	$(file >> $(@),[Service])
-	$(file >> $(@),Environment="EXIST_HOME=$(EXIST_HOME)")
-	$(file >> $(@),$(if $(SUDO_USER),Environment="SERVER=development",Environment="SERVER=production"))
-	$(file >> $(@),WorkingDirectory=$(EXIST_HOME))
-	$(file >> $(@),User=$(INSTALLER))
-	$(file >> $(@),Group=$(INSTALLER))
-	$(file >> $(@),ExecStart=$(START_JAR) jetty)
-	$(file >> $(@),ExecStop=$(START_JAR) shutdown -u admin -p $(P) )
-	$(file >> $(@),)
-	$(file >> $(@),[Install])
-	$(file >> $(@),WantedBy=multi-user.target)
-	@cp $@ /lib/systemd/system/$(notdir $@)
+	@$(call assert-is-systemd)
+	@echo "$${existService}" > $@
+	@$(call chownToUser,$@)
+	@cp -f $@ /lib/systemd/system/$(notdir $@)
 	@systemd-analyze verify $(notdir $@)
 	@systemctl enable  $(notdir $@)
 	@systemctl start  $(notdir $@)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
-	@echo '-----}}}'
+	@echo '}}}'
 
 .PHONY: git-user-as-eXist-user
 

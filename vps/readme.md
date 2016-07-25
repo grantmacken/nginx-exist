@@ -50,9 +50,20 @@ root@awhitu
 root@awhitu:~# apt-get update
 root@awhitu:~# apt-get upgrade
 
-> Install git-core
+> Install git
 
 	root@awhitu:~#  apt-get install git-core
+
+configure your vps servers git username and email on the remote server as the same as your local develoment  machine,
+
+git config --global user.name "John Doe"
+git config --global user.email johndoe@example.com
+git config --global core.editor vim
+
+copy your local existing git authorising SSH keys to the remote
+
+`scp ~/.shh/id_* awhitu:~/.ssh/id_*
+
 
 > Get the nginx-eXist-ubuntu scripts
 
