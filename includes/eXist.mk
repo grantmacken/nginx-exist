@@ -95,18 +95,18 @@ Description=The exist db application server
 After=network.target
 
 [Service]
-Environment="EXIST_HOME=$(EXIST_HOME)"
+Environment=EXIST_HOME=$(EXIST_HOME)
 $(if $(SUDO_USER),
-Environment="SERVER=development",
-Environment="SERVER=production")
-WorkingDirectory=$(EXIST_HOME))
-User=$(INSTALLER))
-Group=$(INSTALLER))
+Environment=SERVER=development,
+Environment=SERVER=production)
+WorkingDirectory=$(EXIST_HOME)
+User=$(INSTALLER)
+Group=$(INSTALLER)
 ExecStart=$(START_JAR) jetty)
-ExecStop=$(START_JAR) shutdown -u admin -p $(P) )
+ExecStop=$(START_JAR) shutdown -u admin -p $(P)
 
-[Install])
-WantedBy=multi-user.target)
+[Install]
+WantedBy=multi-user.target
 endef
 
 $(T)/exist.service: export existService:=$(existService)
