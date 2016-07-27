@@ -4,7 +4,12 @@ EXIST_JAR = $(call cat,$(EXIST_VERSION))
 EXIST_JAR_PATH = $(T)/$(call cat,$(EXIST_VERSION))
 # shortcuts
 JAVA := $(shell which java)
-START_JAR := $(JAVA) -Djava.endorsed.dirs=lib/endorsed -jar start.jar
+START_JAR := $(JAVA) \
+ -Dexist.home=$(EXIST_HOME) \
+ -Djava.endorsed.dirs=$(EXIST_HOME)/lib/endorsed \
+ -Djava.net.preferIPv4Stack=true \
+ -jar $(EXIST_HOME)/start.jar
+
 EXPECT := $(shell which expect)
 EXIST_DOWNLOAD_SOURCE=https://bintray.com/artifact/download/existdb/releases
 EXIST_VERSION_SOURCE=https://bintray.com/existdb/releases/exist/_latestVersion
@@ -89,20 +94,18 @@ $(T)/eXist-run.sh: $(T)/eXist-expect.log
 	
 define existService
 [Unit]
-
 Description=The exist db application server
-
 After=network.target
 
 [Service]
-Environment=EXIST_HOME=$(EXIST_HOME)
+Environment="EXIST_HOME=$(EXIST_HOME)"
 $(if $(SUDO_USER),
-Environment=SERVER=development,
-Environment=SERVER=production)
+Environment="SERVER=developmenat",
+Environment="SERVER=production)"
 WorkingDirectory=$(EXIST_HOME)
 User=$(INSTALLER)
 Group=$(INSTALLER)
-ExecStart=$(START_JAR) jetty)
+ExecStart=$(START_JAR) jetty
 ExecStop=$(START_JAR) shutdown -u admin -p $(P)
 
 [Install]
