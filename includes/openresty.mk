@@ -19,7 +19,7 @@ luarocksVer != [ -e $(T)/luarocks-latest.version ] && cat $(T)/luarocks-latest.v
 
 
 .PHONY: orInstall luarocksInstall \
-	downloadOpenssl downloadPcre downloadZlib downloadRedis\
+ downloadOpenresty downloadOpenssl downloadPcre downloadZlib downloadRedis\
  orConf orGenSelfSigned certbot
 
 $(T)/openresty-latest.version: config
