@@ -4,7 +4,7 @@
 OPENRESTY_VERSION_SOURCE := https://openresty.org/en/download.html
 OPENSSL_DOWNLOAD := http://www.openssl.org/source
 
-or: $(T)/openresty-latest.version
+orLatest: $(T)/openresty-latest.version
 opensslLatest: $(T)/openssl-latest.version
 pcreLatest: $(T)/pcre-latest.version
 zlibLatest: $(T)/zlib-latest.version
@@ -88,8 +88,8 @@ downloadOpenssl: $(T)/openssl-latest.version
 #  tar xz --directory $(t)
 
 $(T)/pcre-latest.version: config
-	@echo "{{{ $(notdir $@) "
-	@echo 'fetch the latest  version'
+	@echo "$(notdir $@) "
+	@echo 'fetch the latest pcre version'
 	@echo $$( curl -s -L ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/ | tr -d '\n\r' |\
  grep -oP 'pcre-\K([0-9\.]+)(?=\.tar\.gz)' |\
  head -1) > $(@)
@@ -97,21 +97,15 @@ $(T)/pcre-latest.version: config
 	@echo '------------------------------------------------'
 
 downloadPcre: $(T)/pcre-latest.version
-	@echo 'download the latest  version'
+	@echo 'download the latest pcre  version'
 	@echo  "$$(<$(<))" 
 	curl ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-$(shell echo "$$(<$(<))").tar.gz | \
  tar xz --directory $(T)
 	@echo '------------------------------------------------'
 
-downloadRedis:
-	@echo 'download the stable redis version'
-	curl http://download.redis.io/redis-stable.tar.gz | \
- tar xz --directory $(T)
-	cd $(T)/redis-stable; $(MAKE) && $(MAKE) test && $(MAKE) install
-	@echo '------------------------------------------------'
 
 $(T)/zlib-latest.version: config
-	@echo "{{{ $(notdir $@) "
+	@echo " $(notdir $@) "
 	@echo 'fetch the latest zlib  version'
 	@echo 'http://zlib.net/'
 	@echo $$( curl -s -L http://zlib.net/ | tr -d '\n\r' |\
@@ -152,6 +146,13 @@ luarocksInstall:
 	@export PATH=$(OPENRESTY_HOME)/luajit/bin:$$PATH
 	@cd $(OPENRESTY_HOME)/luajit/bin; ln -s luajit lua
 	@echo '--------------------------------------------'
+
+downloadRedis:
+	@echo 'download the stable redis version'
+	curl http://download.redis.io/redis-stable.tar.gz | \
+ tar xz --directory $(T)
+	cd $(T)/redis-stable; $(MAKE) && $(MAKE) test && $(MAKE) install
+	@echo '------------------------------------------------'
 
 define ngConf
 worker_processes $(shell grep ^proces /proc/cpuinfo | wc -l );
