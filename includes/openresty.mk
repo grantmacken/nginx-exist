@@ -20,7 +20,7 @@ luarocksVer != [ -e $(T)/luarocks-latest.version ] && cat $(T)/luarocks-latest.v
 
 .PHONY: orInstall luarocksInstall \
  downloadOpenresty downloadOpenssl downloadPcre downloadZlib downloadRedis\
- orConf orGenSelfSigned certbot
+ orConf orGenSelfSigned certbotConf
 
 $(T)/openresty-latest.version: config
 	@echo " $(notdir $@) "
@@ -33,7 +33,7 @@ $(T)/openresty-latest.version: config
 	@echo '------------------------------------------------'
 
 downloadOpenresty: $(T)/openresty-latest.version
-	@echo https://openresty.org/download/openresty-$_$(orVer).tar.gz
+	@echo https://openresty.org/download/openresty-$(orVer).tar.gz
 	@curl -L https://openresty.org/download/openresty-$(orVer).tar.gz | \
  tar xz --directory $(T)
 	@echo '------------------------------------------------'
@@ -403,15 +403,25 @@ endef
 
 
 
-certbot: export certbotConfig:=$(certbotConfig)
-certbot:
+certbotConf: export certbotConfig:=$(certbotConfig)
+certbotConf:
+	@echo "if they don't exist create dirs"
 	@[ -d $(T)/certbot ] || mkdir $(T)/certbot
 	@[ -d /etc/letsencrypt ] || mkdir /etc/letsencrypt
+	@[ -d /tmp/letsencrypt ] || mkdir /tmp/letsencrypt
+	@echo "create cli config file"
 	@echo "$${certbotConfig}" > /etc/letsencrypt/cli.ini
-	@[ -e $(T)/certbot/cerbot-auto ] || \
- { cd $(T)/certbot; wget https://dl.eff.org/certbot-auto; chmod a+x ./certbot-auto }
-	@cd $(T)/certbot; ./certbot-auto --help
-	@cd $(T)/certbot; ./certbot-auto certonly --config cli.ini
+	@[ -d $(T)/certbot/certbot-auto ] || curl https://dl.eff.org/certbot-auto -o $(T)/certbot/certbot-auto 
+	@$(call chownToUser,$(T)/certbot/certbot-auto)
+	@chmod +x $(T)/certbot/certbot-auto
+	@$(T)/certbot/certbot-auto --help
+
+
+
+# @[ -e $(T)/certbot/cerbot-auto ] || \
+ # { cd $(T)/certbot; wget https://dl.eff.org/certbot-auto; chmod a+x ./certbot-auto }
+# @cd $(T)/certbot; ./certbot-auto --help
+# @cd $(T)/certbot; ./certbot-auto certonly --config cli.ini
 
 # https://github.com/GUI/lua-resty-auto-ssl
 # openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 \
