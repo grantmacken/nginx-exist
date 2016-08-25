@@ -25,11 +25,21 @@ luarocksVer != [ -e $(T)/luarocks-latest.version ] && cat $(T)/luarocks-latest.v
 $(T)/openresty-latest.version: config
 	@echo " $(notdir $@) "
 	@echo 'fetch the latest openresty version'
-	@echo $$( curl -s -L  $(OPENRESTY_VERSION_SOURCE) | tr -d '\n\r' |\
+	@echo $$( curl -s -L https://openresty.org/en/download.html |\
+ tr -d '\n\r' |\
  grep -oP 'openresty-\K([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)' |\
  head -1) > $(@)
 	@echo  "$$(<$@)" 
 	@echo '------------------------------------------------'
+
+downloadOpenresty: $(T)/openresty-latest.version
+	@echo https://openresty.org/download/openresty-$_$(orVer).tar.gz
+	@curl -L https://openresty.org/download/openresty-$(orVer).tar.gz | \
+ tar xz --directory $(T)
+	@echo '------------------------------------------------'
+
+# curl $https://openresty.org/download/openresty-$(shell echo  "$$(<$@)" ).tar.gz | \
+#  tar xz --directory $(T)
 
 orInstall: $(T)/openresty-latest.version 
 	@echo "configure and install openresty $$(<$(<))"
@@ -443,5 +453,3 @@ nginx-open-resty-config:
 # curl https://www.openssl.org/source/openssl-$(shell echo "$$(<$@)").tar.gz | \
 #  tar xz --directory $(T)
 
-# curl $https://openresty.org/download/openresty-$(shell echo  "$$(<$@)" ).tar.gz | \
-#  tar xz --directory $(T)
