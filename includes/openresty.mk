@@ -11,13 +11,11 @@ zlibLatest: $(T)/zlib-latest.version
 luarocksLatest: $(T)/luarocks-latest.version
 luaLatest: $(T)/lua-latest.version
 
-
-pcreVer != cat $(T)/pcre-latest.version
-zlibVer != cat $(T)/zlib-latest.version
-opensslVer != cat $(T)/openssl-latest.version
-luarocksVer != cat $(T)/luarocks-latest.version
-cores !=  grep ^proces /proc/cpuinfo | wc -l 
-
+orVer != [ -e $(T)/openresty-latest.version ] && cat $(T)/openresty-latest.version || echo ''
+pcreVer != [ -e $(T)/pcre-latest.version ] && cat $(T)/pcre-latest.version || echo ''
+zlibVer != [ -e $(T)/zlib-latest.version ] && cat $(T)/zlib-latest.version || echo ''
+opensslVer != [ -e $(T)/openssl-latest.version] && cat $(T)/openssl-latest.version || echo ''
+luarocksVer != [ -e $(T)/luarocks-latest.version] && cat $(T)/luarocks-latest.version || echo ''
 
 
 .PHONY: orInstall luarocksInstall \
