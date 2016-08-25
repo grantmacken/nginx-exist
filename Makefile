@@ -78,7 +78,7 @@ default: build
 
 include includes/*
 
-.PHONY: help test clean
+.PHONY: help test clean nginx-config
 
 clean: 
 	@rm $(EXIST_VERSION)
@@ -89,9 +89,9 @@ nginx: $(T)/nginx-run.sh
 
 build: $(T)/nginx-run.sh $(T)/eXist-run.sh
 
-nginx-config: $(T)/nginx.conf
+# nginx-config: $(NGINX_HOME)/conf/nginx.conf
 
-nginx-service: $(T)/nginx.service
+nginx-service: /lib/systemd/system/nginx.service
 
 exist-service:  $(T)/exist.service
 

@@ -6,9 +6,41 @@ EXIST_JAR_PATH = $(T)/$(call cat,$(EXIST_VERSION))
 JAVA := $(shell which java)
 START_JAR := $(JAVA) \
  -Dexist.home=$(EXIST_HOME) \
+ -Djetty.home=$(EXIST_HOME)/tools/jetty \
+ -Dfile.encoding=UTF-8 \
  -Djava.endorsed.dirs=$(EXIST_HOME)/lib/endorsed \
+ -Djavax.net.ssl.keyStore=$(EXIST_HOME)/tools/jetty/etc/keystore \
+ -Djavax.net.ssl.keyStorePassword=secret \
+ -Djavax.net.ssl.trustStore=$(EXIST_HOME)/tools/jetty/etc/keystore \
  -Djava.net.preferIPv4Stack=true \
+ -Djavax.net.ssl.trustStorePassword=secret \
+ -Dsun.security.ssl.allowLegacyHelloMessages=true \
+ -Dsun.security.ssl.allowUnsafeRenegotiation=true \
+ -Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2,SSLv2Hello \
+ -Djsse.enableSNIExtension=true \
+ -Dorg.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER \
+ -Djavax.net.debug=ssl,handshake \
  -jar $(EXIST_HOME)/start.jar
+
+# http://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#InstallationAndCustomization
+# sun.security.ssl.allowUnsafeRenegotiatio
+# -Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2,SSLv2Hello
+ # -Djava.net.preferIPv4Stack=true \
+ # /usr/lib/jvm/java-8-oracle/jre/lib/security/cacerts
+ # -Djavax.net.ssl.keyStore=$(EXIST_HOME)/tools/jetty/etc/keystore \
+ # -Djavax.net.ssl.keyStorePassword=secret \
+ # -Djavax.net.ssl.trustStore=$(EXIST_HOME)/tools/jetty/etc/keystore \
+ # -Djavax.net.ssl.trustStorePassword=secret \i
+ # -Djava.endorsed.dirs=$(EXIST_HOME)/lib/endorsed \
+ # -Djava.net.preferIPv4Stack=true \
+ # -Djavax.net.ssl.keyStore=$(EXIST_HOME)/tools/jetty/etc/keystore \
+ # -Djavax.net.ssl.keyStorePassword=secret \
+ # -Djavax.net.ssl.trustStore=/usr/lib/jvm/java-8-oracle/jre/lib/security/cacerts \
+ # -Djavax.net.ssl.trustStorePassword=changeit \
+ # -Djavax.net.debug=ssl,handshake 
+ #
+ # org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER
+
 
 EXPECT := $(shell which expect)
 EXIST_DOWNLOAD_SOURCE=https://bintray.com/artifact/download/existdb/releases
@@ -100,8 +132,8 @@ After=network.target
 [Service]
 Environment="EXIST_HOME=$(EXIST_HOME)"
 $(if $(SUDO_USER),
-Environment="SERVER=developmenat",
-Environment="SERVER=production)"
+Environment="SERVER=development",
+Environment="SERVER=production")
 WorkingDirectory=$(EXIST_HOME)
 User=$(INSTALLER)
 Group=$(INSTALLER)
