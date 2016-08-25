@@ -14,12 +14,12 @@ luaLatest: $(T)/lua-latest.version
 orVer != [ -e $(T)/openresty-latest.version ] && cat $(T)/openresty-latest.version || echo ''
 pcreVer != [ -e $(T)/pcre-latest.version ] && cat $(T)/pcre-latest.version || echo ''
 zlibVer != [ -e $(T)/zlib-latest.version ] && cat $(T)/zlib-latest.version || echo ''
-opensslVer != [ -e $(T)/openssl-latest.version] && cat $(T)/openssl-latest.version || echo ''
-luarocksVer != [ -e $(T)/luarocks-latest.version] && cat $(T)/luarocks-latest.version || echo ''
+opensslVer != [ -e $(T)/openssl-latest.version ] && cat $(T)/openssl-latest.version || echo ''
+luarocksVer != [ -e $(T)/luarocks-latest.version ] && cat $(T)/luarocks-latest.version || echo ''
 
 
 .PHONY: orInstall luarocksInstall \
- downloadOpenssl downloadPcre downloadZlib downloadRedis\
+	downloadOpenssl downloadPcre downloadZlib downloadRedis\
  orConf orGenSelfSigned certbot
 
 $(T)/openresty-latest.version: config
