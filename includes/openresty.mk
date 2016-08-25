@@ -23,7 +23,7 @@ luarocksVer != [ -e $(T)/luarocks-latest.version ] && cat $(T)/luarocks-latest.v
  orConf orGenSelfSigned certbot
 
 $(T)/openresty-latest.version: config
-	@echo "{{{ $(notdir $@) "
+	@echo " $(notdir $@) "
 	@echo 'fetch the latest openresty version'
 	@echo $$( curl -s -L  $(OPENRESTY_VERSION_SOURCE) | tr -d '\n\r' |\
  grep -oP 'openresty-\K([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)' |\
@@ -63,12 +63,13 @@ orInstall: $(T)/openresty-latest.version
 # OpenSSL_1_0_2h.tar.gz
 
 $(T)/openssl-latest.version: config
-	@echo "{{{ $(notdir $@) "
+	@echo " $(notdir $@) "
 	@echo 'fetch the latest opensll version'
 	@echo $$( curl -s -L https://github.com/openssl/openssl/releases | \
  tr -d '\n\r' | \
  grep -oP 'OpenSSL_\K(\d_\d_[2-9]{1}[a-z]{1})(?=\.tar\.gz)' |\
  head -1) > $(@)
+	@echo '$(opensslVer)'
 	@echo '------------------------------------------------'
 
 # curl https://www.openssl.org/source/openssl-$(shell echo "$$(<$@)").tar.gz | \
