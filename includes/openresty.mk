@@ -367,13 +367,17 @@ http {
 
   server {
     listen *:80;
-    server_name gmack.nz;
+    server_name ~^(www\.)?(?<domain>.+)$$;
     location ^~ /.well-known {
       default_type "text/plain";
    }
 
-  location / {
-    return 301 https://$http_host$request_uri;
+  location / {      default_type text/html;
+      content_by_lua '
+      ngx.say("<p>hello, world</p>")
+      ';
+      } 
+ 
   }
  }
 }
