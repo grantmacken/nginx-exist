@@ -18,7 +18,7 @@ opensslVer != [ -e $(T)/openssl-latest.version ] && cat $(T)/openssl-latest.vers
 luarocksVer != [ -e $(T)/luarocks-latest.version ] && cat $(T)/luarocks-latest.version || echo ''
 
 
-.PHONY: orInstall luarocksInstall \
+.PHONY: orInstall luarocksInstall ngReload \
  downloadOpenresty downloadOpenssl downloadPcre downloadZlib downloadRedis\
  orSimpleConf orConf orGenSelfSigned certbotConf
 
@@ -374,10 +374,8 @@ http {
       default_type "text/plain";
     }
 
-    location / {      default_type text/html;
-      content_by_lua '
-      ngx.say("<p>hello, world</p>")
-      ';
+    location / {
+      default_type text/html;
     } 
  
   }
@@ -399,6 +397,10 @@ orSimpleConf:
 	@find $(NGINX_HOME)/conf -type f -name 'nginx.conf' -delete
 	@find $(NGINX_HOME)/logs -type f -name 'error.log' -delete
 	@echo "$${ngSimpleConf}" > $(NGINX_HOME)/conf/nginx.conf
+
+ngReload:
+	@$(NGINX_HOME)/sbin/nginx -t
+	@$(NGINX_HOME)/sbin/nginx -s reload
 
 orConf: export ngConf:=$(ngConf)
 orConf:
