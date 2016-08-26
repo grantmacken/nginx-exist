@@ -367,21 +367,21 @@ http {
 
   server {
     listen *:80;
+
     server_name ~^(www\.)?(?<domain>.+)$$;
+
     location ^~ /.well-known {
       default_type "text/plain";
-   }
+    }
 
-  location / {      default_type text/html;
+    location / {      default_type text/html;
       content_by_lua '
       ngx.say("<p>hello, world</p>")
       ';
-      } 
+    } 
  
   }
  }
-}
-
 endef
 
 
