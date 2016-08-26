@@ -353,18 +353,34 @@ orLuaTest:
 #################################
 
 define ngSimpleConf
-server {
-  listen *:80;
-  server_name gmack.nz;
 
-  location /.well-known/acme-challenge {
-    default_type "text/plain";
-    root /tmp/letsencrypt;
-  }
+worker_processes $(shell grep ^proces /proc/cpuinfo | wc -l );
+error_log logs/error.log;
+
+events {
+  worker_connections  1024;
+}
+
+http {
+  include mime.types;
+  default_type application/octet-stream;
+  # A DNS resolver must be defined for OCSP stapling to function.
+  resolver 8.8.8.8;
+  access_log off;
+
+  server {
+    listen *:80;
+    server_name gmack.nz;
+
+   location /.well-known/acme-challenge {
+     default_type "text/plain";
+     root /tmp/letsencrypt;
+   }
 
   location / {
     return 301 https://$http_host$request_uri;
   }
+ }
 }
 
 endef
