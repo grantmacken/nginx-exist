@@ -399,7 +399,7 @@ orSimpleConf:
 	@find $(NGINX_HOME)/conf -type f -name 'nginx.conf' -delete
 	@find $(NGINX_HOME)/logs -type f -name 'error.log' -delete
 	@echo "$${ngSimpleConf}" > $(NGINX_HOME)/conf/nginx.conf
-
+	@echo "$(NGINX_HOME)/sbin/nginx -s reload
 
 orConf: export ngConf:=$(ngConf)
 orConf:
