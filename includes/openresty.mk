@@ -20,7 +20,7 @@ luarocksVer != [ -e $(T)/luarocks-latest.version ] && cat $(T)/luarocks-latest.v
 
 .PHONY: orInstall luarocksInstall \
  downloadOpenresty downloadOpenssl downloadPcre downloadZlib downloadRedis\
- orConf orGenSelfSigned certbotConf
+ orSimpleConf orConf orGenSelfSigned certbotConf
 
 $(T)/openresty-latest.version: config
 	@echo " $(notdir $@) "
@@ -163,6 +163,8 @@ downloadRedis:
  tar xz --directory $(T)
 	cd $(T)/redis-stable; $(MAKE) && $(MAKE) test && $(MAKE) install
 	@echo '------------------------------------------------'
+
+
 
 define ngConf
 worker_processes $(shell grep ^proces /proc/cpuinfo | wc -l );
@@ -344,6 +346,46 @@ orLuaTest:
 	@find $(NGINX_HOME)/lua -type f -name 'test.lua' -delete
 	@echo "$${luaTest}" > $(NGINX_HOME)/lua/test.lua
 
+#################################
+#
+# simple is the conf to setup letsencrypt
+#
+#################################
+
+define ngSimpleConf
+server {
+  listen *:80;
+  server_name aaronpk.com example.com;
+
+  location /.well-known/acme-challenge {
+    default_type "text/plain";
+    root /tmp/letsencrypt;
+  }
+
+  location / {
+    return 301 https://$http_host$request_uri;
+  }
+}
+
+endef
+
+
+orSimpleConf: export ngSimpleConf:=$(ngSimpleConf)
+orSimpleConf:
+	@[ -d $(NGINX_HOME)/proxy ] || mkdir $(NGINX_HOME)/proxy
+	@[ -d $(NGINX_HOME)/cache ] || mkdir $(NGINX_HOME)/cache
+	@[ -d $(NGINX_HOME)/lua ] || mkdir $(NGINX_HOME)/lua
+	@[ -d /etc/letsencrypt ] || mkdir /etc/letsencrypt
+	@[ -d /tmp/letsencrypt ] || mkdir /tmp/letsencrypt
+	@find $(NGINX_HOME)/conf -type f -name 'fast*' -delete
+	@find $(NGINX_HOME)/conf -type f -name 'scgi*' -delete
+	@find $(NGINX_HOME)/conf -type f -name 'uwsgi*' -delete
+	@find $(NGINX_HOME)/conf -type f -name '*.default' -delete
+	@find $(NGINX_HOME)/conf -type f -name 'nginx.conf' -delete
+	@find $(NGINX_HOME)/logs -type f -name 'error.log' -delete
+	@echo "$${ngSimpleConf}" > $(NGINX_HOME)/conf/nginx.conf
+
+
 orConf: export ngConf:=$(ngConf)
 orConf:
 	@[ -d $(NGINX_HOME)/proxy ] || mkdir $(NGINX_HOME)/proxy
@@ -373,6 +415,7 @@ orConf:
 #########################################################
 define certbotConfig
 
+# https://certbot.eff.org/docs/using.html#command-line
 # This is an example of the kind of things you can do in a configuration file.
 # All flags used by the client can be configured here. Run Certbot with
 # "--help" to learn more about the available options.
@@ -398,6 +441,8 @@ text = True
 # path to the public_html / webroot folder being served by your web server.
 authenticator = webroot
 webroot-path = /tmp/letsencrypt
+
+agree-tos = true
 
 endef
 
