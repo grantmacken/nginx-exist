@@ -371,10 +371,9 @@ http {
   server {
     listen *:80;
     server_name gmack.nz;
-
-   location /.well-known/acme-challenge {
-     default_type "text/plain";
-     root /tmp/letsencrypt;
+    location ^~ /.well-known {
+      default_type "text/plain";
+      root /tmp/letsencrypt;
    }
 
   location / {
