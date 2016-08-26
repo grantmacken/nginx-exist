@@ -355,7 +355,7 @@ orLuaTest:
 define ngSimpleConf
 server {
   listen *:80;
-  server_name aaronpk.com example.com;
+  server_name gmack.nz;
 
   location /.well-known/acme-challenge {
     default_type "text/plain";
