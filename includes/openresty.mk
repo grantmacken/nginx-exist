@@ -363,9 +363,6 @@ events {
 
 http {
   include mime.types;
-  default_type application/octet-stream;
-  # A DNS resolver must be defined for OCSP stapling to function.
-  resolver 8.8.8.8;
   access_log off;
 
   server {
@@ -373,7 +370,6 @@ http {
     server_name gmack.nz;
     location ^~ /.well-known {
       default_type "text/plain";
-      root /tmp/letsencrypt;
    }
 
   location / {
@@ -454,7 +450,7 @@ text = True
 # Uncomment to use the webroot authenticator. Replace webroot-path with the
 # path to the public_html / webroot folder being served by your web server.
 authenticator = webroot
-webroot-path = /tmp/letsencrypt
+webroot-path = $(NGINX_HOME)/html/
 
 agree-tos = true
 
