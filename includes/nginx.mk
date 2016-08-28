@@ -136,37 +136,37 @@ nginx-config:
 # @$(if "$(ps -lfC nginx | grep nginx)",,$(NGINX_HOME)/sbin/nginx -s reload )
 # @$(call chownToUser,$(dir $@)nginx-tested.log)
 
-define nginxService
-[Unit]
+# define nginxService
+# [Unit]
 
-Description=The openresty nginx HTTP and reverse proxy server
-After=network.target
+# Description=The openresty nginx HTTP and reverse proxy server
+# After=network.target
 
-[Service]
-PIDFile=$(NGINX_HOME)/logs/nginx.pid
-ExecStart=$(NGINX_HOME)/sbin/nginx
-ExecReload=/bin/kill -s HUP $$MAINPID
-ExecStop=/bin/kill -s QUIT $$MAINPID
-PrivateTmp=true
+# [Service]
+# PIDFile=$(NGINX_HOME)/logs/nginx.pid
+# ExecStart=$(NGINX_HOME)/sbin/nginx
+# ExecReload=/bin/kill -s HUP $$MAINPID
+# ExecStop=/bin/kill -s QUIT $$MAINPID
+# PrivateTmp=true
 
-[Install]
-WantedBy=multi-user.target
-endef
+# [Install]
+# WantedBy=multi-user.target
+# endef
 
-/lib/systemd/system/nginx.service: export nginxService:=$(nginxService)
-/lib/systemd/system/nginx.service:
-	@echo "$(notdir $@)"
-	@$(call assert-is-root)
-	@$(call assert-is-systemd)
-	@echo "$${nginxService}" > $@
-	@systemd-analyze verify $(notdir $@)
-	@systemctl enable  $(notdir $@)
-	@systemctl start  $(notdir $@)
-	@echo '--------------------------------------------------------------'
+# /lib/systemd/system/nginx.service: export nginxService:=$(nginxService)
+# /lib/systemd/system/nginx.service:
+# @echo "$(notdir $@)"
+# @$(call assert-is-root)
+# @$(call assert-is-systemd)
+# @echo "$${nginxService}" > $@
+# @systemd-analyze verify $(notdir $@)
+# @systemctl enable  $(notdir $@)
+# @systemctl start  $(notdir $@)
+# @echo '--------------------------------------------------------------'
 
 
 
-# @echo "$${nginxConfig}" > $@
+# # @echo "$${nginxConfig}" > $@
 # @$(call chownToUser,$@)
 # @cp -f $@ $(NGINX_HOME)/conf/nginx.conf
 # @cp -f nginx-config/*  $(NGINX_HOME)/conf

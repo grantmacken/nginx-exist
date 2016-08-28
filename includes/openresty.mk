@@ -20,7 +20,7 @@ luarocksVer != [ -e $(T)/luarocks-latest.version ] && cat $(T)/luarocks-latest.v
 
 .PHONY: orInstall luarocksInstall ngReload \
  downloadOpenresty downloadOpenssl downloadPcre downloadZlib downloadRedis\
- orSimpleConf orConf orGenSelfSigned certbotConf
+ orService orSimpleConf orConf orGenSelfSigned certbotConf
 
 $(T)/openresty-latest.version: config
 	@echo " $(notdir $@) "
@@ -356,6 +356,7 @@ define ngSimpleConf
 
 worker_processes $(shell grep ^proces /proc/cpuinfo | wc -l );
 error_log logs/error.log;
+pid       logs/nginx.pid;
 
 events {
   worker_connections  1024;
@@ -396,6 +397,8 @@ orSimpleConf:
 	@find $(NGINX_HOME)/conf -type f -name '*.default' -delete
 	@find $(NGINX_HOME)/conf -type f -name 'nginx.conf' -delete
 	@find $(NGINX_HOME)/logs -type f -name 'error.log' -delete
+	@find $(NGINX_HOME)/logs -type f -name 'koi-*' -delete
+	@find $(NGINX_HOME)/logs -type f -name 'win-*' -delete
 	@echo "$${ngSimpleConf}" > $(NGINX_HOME)/conf/nginx.conf
 
 ngReload:
@@ -462,8 +465,6 @@ agree-tos = true
 
 endef
 
-
-
 certbotConf: export certbotConfig:=$(certbotConfig)
 certbotConf:
 	@echo "if they don't exist create dirs"
@@ -524,3 +525,45 @@ nginx-open-resty-config:
 # curl https://www.openssl.org/source/openssl-$(shell echo "$$(<$@)").tar.gz | \
 #  tar xz --directory $(T)
 
+define ngService
+[Unit]
+Description=OpenResty stack for Nginx HTTP server
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+Type=forking
+PIDFile=$(NGINX_HOME)/logs/nginx.pid
+ExecStartPre=$(NGINX_HOME)/sbin/nginx -t
+ExecStart=$(NGINX_HOME)/sbin/nginx
+ExecReload=/bin/kill -s HUP $$MAINPID
+ExecStop=/bin/kill -s QUIT $$MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+endef
+
+orService: export ngService:=$(ngService)
+orService:
+	@echo "$(notdir $@)"
+	@$(call assert-is-root)
+	@$(call assert-is-systemd)
+	@echo 'Check if service is enabled'
+	@echo "$(systemctl is-enabled nginx.service)"
+	@echo 'Check if service is active'
+	@systemctl is-active nginx.service && systemctl stop  nginx.service || echo 'inactive'
+	@echo 'Check if service is failed'
+	@systemctl is-failed nginx.service || systemctl stop nginx.service && echo 'inactive'
+	@echo "$${ngService}"
+	@echo "$${ngService}" > /lib/systemd/system/nginx.service
+	@systemd-analyze verify nginx.service
+	@systemctl is-enabled nginx.service || systemctl enable nginx.service
+	@systemctl start nginx.service
+	@echo 'Check if service is enabled'
+	@systemctl is-enabled nginx.service
+	@echo 'Check if service is active'
+	@systemctl is-active nginx.service
+	@echo 'Check if service is failed'
+	@systemctl is-failed nginx.service || echo 'OK!'
+	@journalctl -f -u nginx.service -o cat
+	@echo '--------------------------------------------------------------'
