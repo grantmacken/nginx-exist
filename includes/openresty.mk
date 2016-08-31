@@ -362,13 +362,10 @@ endef
 orLE: export orLetsEncryptConf:=$(ngSimporSimpleConf)
 orLE:
 	@echo "$${orLetsEncryptConf}" > $(NGINX_HOME)/conf/letsencrypt.conf
-	@[ -d /opt/letsencrypt.sh ] || \
-{ mkdir /opt/letsencrypt.sh;\
-  cd /opt/letsencrypt.sh;\
-  git clone https://github.com/lukas2511/letsencrypt.sh\
-}
+	@[ -d /opt/letsencrypt.sh ] ||  mkdir /opt/letsencrypt.sh
+	@[ -d /opt/letsencrypt.sh ] || cd /opt; git clone https://github.com/lukas2511/letsencrypt.sh
 	@cd /opt/letsencrypt.sh && cp docs/examples/config config
-	@cat /opt/letsencrypt.sh/ && cp config
+	@cat /opt/letsencrypt.sh/config
 
 
 define ngSimpleConf
