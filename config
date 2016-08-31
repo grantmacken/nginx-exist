@@ -6,3 +6,4 @@ OPENRESTY_HOME=/usr/local/openresty
 NGINX_HOME=/usr/local/openresty/nginx
 WEBDAV=~/eXist
 DEPLOY=grantmacken/example.com
+DOMAIN=gmack.nz

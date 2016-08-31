@@ -199,8 +199,8 @@ http {
     server_name ~^(www\.)?(?<domain>.+)$$;
 
     # certificates from letsencrypt
-    ssl_certificate         /etc/letsencrypt/live/$$domain/fullchain.pem;
-    ssl_certificate_key     /etc/letsencrypt/live/$$domain/privkey.pem;
+    ssl_certificate         /etc/letsencrypt/live/$(DOMAIN)/fullchain.pem;
+    ssl_certificate_key     /etc/letsencrypt/live/$(DOMAIN)/privkey.pem;
 
     ssl_session_timeout 1d;
     ssl_session_cache shared:SSL:50m;
@@ -224,7 +224,7 @@ http {
      ssl_stapling_verify on;
 
     # verify chain of trust of OCSP response using Root CA and Intermediate certs
-     ssl_trusted_certificate /etc/letsencrypt/live/$$domain/chain.pem;
+     ssl_trusted_certificate /etc/letsencrypt/live/$(DOMAIN)/chain.pem;
 
     location / {
       default_type text/html;
@@ -240,7 +240,8 @@ http {
   server {
     listen 80 default_server;
     listen [::]:80 default_server;
-    server_name gmack.nz;
+
+    server_name ~^(www\.)?(?<domain>.+)$$;
 
     # Endpoint used for performing domain verification with Let's Encrypt.
     include letsencrypt.conf;
@@ -430,7 +431,7 @@ email = grantmacken@gmail.com
 
 # Uncomment and update to generate certificates for the specified
 # domains.
-domains = gmack.nz, www.gmack.nz
+domains = $(DOMAIN), www.$(DOMAIN)
 
 # Uncomment to use a text interface instead of ncurses
 text = True
