@@ -368,7 +368,7 @@ orLE:
 	@[ -d /var/www/letsencrypt ] ||\
  echo  'create the ACME challenges directory'
 	@[ -d /opt/letsencrypt.sh/.acme-challenges ] || mkdir /opt/letsencrypt.sh/.acme-challenges
-	@echo 'WELLKNOWN="/opt/letsencrypt.sh/.acme-challenges' > /opt/letsencrypt.sh/config
+	@echo 'WELLKNOWN="/opt/letsencrypt.sh/.acme-challenges"' > /opt/letsencrypt.sh/config
 	@[ -d /var/www/letsencrypt ] || mkdir  -p /var/www/letsencrypt
 	@[ -e $(NGINX_HOME)/ssl/dh-param.pem  ] ||\
  echo 'create a 4096-bits Diffie-Hellman parameter file that nginx can use'
