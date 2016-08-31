@@ -193,8 +193,8 @@ http {
 
   # HTTPS server 
   server {
-    listen 443 default_server  ssl http2;
-    listen [::]:443  default_server ssl http2;
+    listen 443      ssl http2 default_server;
+    listen [::]:443 ssl http2 default_server;
 
     server_name ~^(www\.)?(?<domain>.+)$$;
 
@@ -206,17 +206,19 @@ http {
     ssl_session_cache shared:SSL:50m;
     ssl_session_tickets off;
 
-    # Diffie-Hellman parameter for DHE ciphersuites, recommended 2048 bits
+    # Diffie-Hellman parameter for DHE ciphersuites
     ssl_dhparam ../ssl/dh-param.pem;
 
-    # modern configuration. tweak to your needs.
+    # modern configuration.
+    # use only TLS 1.2
     ssl_protocols TLSv1.2;
+    ssl_prefer_server_ciphers on;
+    # https://wiki.mozilla.org/Security/Server_Side_TLS
     ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256';
 
-    ssl_prefer_server_ciphers on;
 
     # HSTS (ngx_http_headers_module is required) (15768000 seconds = 6 months)
-    # add_header Strict-Transport-Security max-age=15768000;
+    add_header Strict-Transport-Security max-age=15768000;
 
     # OCSP Stapling ---
     # fetch OCSP records from URL in ssl_certificate and cache them
@@ -411,9 +413,10 @@ orReload:
 # can not be done on local dev server 
 #
 # use cerbot-auto with configuration file
-#
-#
-#
+# 
+# testing
+# https://www.ssllabs.com/ssltest/analyze.html?d=gmack.nz
+# https://certlogik.com/ssl-checker/
 #
 #########################################################
 define certbotConfig
