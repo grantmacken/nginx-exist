@@ -362,12 +362,8 @@ endef
 orLE: export orLetsEncryptConf:=$(ngSimporSimpleConf)
 orLE:
 	@echo "$${orLetsEncryptConf}" > $(NGINX_HOME)/conf/letsencrypt.conf
-	@[ -e '/opt/letsencrypt.sh/letsencrypt.sh' ] || \
- git clone https://github.com/lukas2511/letsencrypt.sh /opt  && \
- echo 'letsencrypt installed'
-	[ -d '/opt/letsencrypt.sh/.acme-challenges' ] || \
- mkdir '/opt/letsencrypt.sh/.acme-challenges' && \
- echo 'challanges dir created'
+	@[ -e /opt/letsencrypt.sh/letsencrypt.sh ] ||  git clone https://github.com/lukas2511/letsencrypt.sh /opt/letsencrypt.sh/
+	[ -d /opt/letsencrypt.sh/.acme-challenges ] ||  mkdir /opt/letsencrypt.sh/.acme-challenges
 	@echo 'gmack.nz' > /opt/letsencrypt.sh/domains.txt
 	@echo 'CONTACT_EMAIL=grantmacken@gmail.com' > /opt/letsencrypt.sh/config
 
