@@ -383,7 +383,7 @@ orInitConf:
  echo 'create a 4096-bits Diffie-Hellman parameter file that nginx can use'
 	@[ -d $(NGINX_HOME)/ssl ] || mkdir $(NGINX_HOME)/ssl
 	@[ -e $(NGINX_HOME)/ssl/dh-param.pem ] || openssl dhparam -out $(NGINX_HOME)/ssl/dh-param.pem 4096
-	@echo "$${cnfInit}" > $(NGINX_HOME)/conf/nginx.conf
+	@echo "$${cnfInit}" > $(NGINX_HOME)/conf/nginx.conf;
 	@$(MAKE) incLetsEncrypt
 
 orConf: export ngConf:=$(ngConf)
