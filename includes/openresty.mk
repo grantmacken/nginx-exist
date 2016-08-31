@@ -243,7 +243,7 @@ http {
  
     # Redirect all HTTP requests to HTTPS with a 301 Moved Permanently response.
     location / {
-      return 301 https://$http_host$request_uri;
+      return 301 https://$$http_host$$request_uri;
     }
   }
 }
