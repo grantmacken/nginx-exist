@@ -363,9 +363,13 @@ orLE: export orLetsEncryptConf:=$(ngSimporSimpleConf)
 orLE:
 	@echo "$${orLetsEncryptConf}" > $(NGINX_HOME)/conf/letsencrypt.conf
 	@[ -e /opt/letsencrypt.sh/letsencrypt.sh ] ||  git clone https://github.com/lukas2511/letsencrypt.sh /opt/letsencrypt.sh/
-	[ -d /opt/letsencrypt.sh/.acme-challenges ] ||  mkdir /opt/letsencrypt.sh/.acme-challenges
+	@[ -d /opt/letsencrypt.sh/.acme-challenges ] ||  mkdir /opt/letsencrypt.sh/.acme-challenges
 	@echo 'gmack.nz' > /opt/letsencrypt.sh/domains.txt
 	@echo 'CONTACT_EMAIL=grantmacken@gmail.com' > /opt/letsencrypt.sh/config
+	@echo 'create a 4096-bits Diffie-Hellman parameter file that nginx can use'
+	@[ -d $(NGINX_HOME)/ssl ] || mkdir $(NGINX_HOME)/ssl
+	[  -e $(NGINX_HOME)//ssl/dh-param.pem ] || \
+ openssl dhparam -out $(NGINX_HOME)//ssl/dh-param.pem 4096
 
 #@cd /opt/letsencrypt.sh && cp docs/examples/config config
 
@@ -407,10 +411,6 @@ orSimpleConf:
 	@[ -d $(NGINX_HOME)/lua ] || mkdir $(NGINX_HOME)/lua
 	@[ -d /etc/letsencrypt ] || mkdir /etc/letsencrypt
 	@[ -d /tmp/letsencrypt ] || mkdir /tmp/letsencrypt
-	@echo 'create a 4096-bits Diffie-Hellman parameter file that nginx can use'
-	@[ -d $(NGINX_HOME)/ssl ] || mkdir $(NGINX_HOME)/ssl
-	[  -e $(NGINX_HOME)//ssl/dh-param.pem ] || \
- openssl dhparam -out $(NGINX_HOME)//ssl/dh-param.pem 4096
 	@echo 'clean out the nginx dir'
 	@find $(NGINX_HOME)/conf -type f -name 'fast*' -delete
 	@find $(NGINX_HOME)/conf -type f -name 'scgi*' -delete
