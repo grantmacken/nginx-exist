@@ -398,8 +398,15 @@ http {
     server_name ~^(www\.)?(?<domain>.+)$$;
 
     location / {
-        return 301 https://$$host$$request_uri;
-    }
+      default_type text/html;
+      content_by_lua '
+      ngx.say("<p>hello, world</p>")
+      ';
+      } 
+
+    # location / {
+    #     return 301 https://$$host$$request_uri;
+    # }
 
    include letsencrypt.conf;
 
