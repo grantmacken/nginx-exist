@@ -366,7 +366,7 @@ orLE:
 	@[ -d /opt/letsencrypt.sh/.acme-challenges ] || mkdir /opt/letsencrypt.sh/.acme-challenges
 	@echo 'gmack.nz www.gmack.nz' > /opt/letsencrypt.sh/domains.txt
 	@echo 'CONTACT_EMAIL=grantmacken@gmail.com' > /opt/letsencrypt.sh/config
-	@[ -d /var/www/letsencrypt ] || ||\
+	@[ -d /var/www/letsencrypt ] ||\
  echo  'create the ACME challenges directory'
 	@[ -d /var/www/letsencrypt ] || mkdir  -p /var/www/letsencrypt
 	@[ -e $(NGINX_HOME)/ssl/dh-param.pem  ] ||\
