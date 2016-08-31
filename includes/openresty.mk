@@ -368,8 +368,7 @@ orLE:
 	@echo 'CONTACT_EMAIL=grantmacken@gmail.com' > /opt/letsencrypt.sh/config
 	@echo 'create a 4096-bits Diffie-Hellman parameter file that nginx can use'
 	@[ -d $(NGINX_HOME)/ssl ] || mkdir $(NGINX_HOME)/ssl
-	[  -e $(NGINX_HOME)//ssl/dh-param.pem ] || \
- openssl dhparam -out $(NGINX_HOME)//ssl/dh-param.pem 4096
+	@[ -e $(NGINX_HOME)/ssl/dh-param.pem ] || openssl dhparam -out $(NGINX_HOME)//ssl/dh-param.pem 4096
 
 #@cd /opt/letsencrypt.sh && cp docs/examples/config config
 
@@ -409,8 +408,6 @@ orSimpleConf:
 	@[ -d $(NGINX_HOME)/proxy ] || mkdir $(NGINX_HOME)/proxy
 	@[ -d $(NGINX_HOME)/cache ] || mkdir $(NGINX_HOME)/cache
 	@[ -d $(NGINX_HOME)/lua ] || mkdir $(NGINX_HOME)/lua
-	@[ -d /etc/letsencrypt ] || mkdir /etc/letsencrypt
-	@[ -d /tmp/letsencrypt ] || mkdir /tmp/letsencrypt
 	@echo 'clean out the nginx dir'
 	@find $(NGINX_HOME)/conf -type f -name 'fast*' -delete
 	@find $(NGINX_HOME)/conf -type f -name 'scgi*' -delete
