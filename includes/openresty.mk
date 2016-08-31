@@ -389,6 +389,8 @@ orInitConf:
 orConf: export ngConf:=$(ngConf)
 orConf:
 	@echo "$${ngConf}" > $(NGINX_HOME)/conf/nginx.conf
+	@$(OPENRESTY_HOME)/bin/openresty -t
+	@$(OPENRESTY_HOME)/bin/openresty -s reload
 
 orReload:
 	@$(OPENRESTY_HOME)/bin/openresty -t
