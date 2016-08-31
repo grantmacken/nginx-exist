@@ -367,8 +367,6 @@ orLE:
 	@echo 'CONTACT_EMAIL=grantmacken@gmail.com' > /opt/letsencrypt.sh/config
 	@[ -d /var/www/letsencrypt ] ||\
  echo  'create the ACME challenges directory'
-	@[ -d /opt/letsencrypt.sh/.acme-challenges ] || mkdir /opt/letsencrypt.sh/.acme-challenges
-	@echo 'WELLKNOWN="/opt/letsencrypt.sh/.acme-challenges"' > /opt/letsencrypt.sh/config
 	@[ -d /var/www/letsencrypt ] || mkdir  -p /var/www/letsencrypt
 	@[ -e $(NGINX_HOME)/ssl/dh-param.pem  ] ||\
  echo 'create a 4096-bits Diffie-Hellman parameter file that nginx can use'
@@ -376,6 +374,9 @@ orLE:
 	@[ -e $(NGINX_HOME)/ssl/dh-param.pem ] || openssl dhparam -out $(NGINX_HOME)//ssl/dh-param.pem 4096
 
 #@cd /opt/letsencrypt.sh && cp docs/examples/config config
+#@[ -d /opt/letsencrypt.sh/.acme-challenges ] || mkdir /opt/letsencrypt.sh/.acme-challenges
+
+#@echo 'WELLKNOWN="/opt/letsencrypt.sh/.acme-challenges"' > /opt/letsencrypt.sh/config
 
 define ngSimpleConf
 
@@ -395,7 +396,7 @@ http {
     listen 0.0.0.0:80 default_server;
     listen    [::]:80 default_server ipv6only=on;
 
-    server_name ~^(www\.)?(?<domain>.+)$$;
+    server_name _;
 
     location / {
       default_type text/html;
@@ -408,8 +409,10 @@ http {
     #     return 301 https://$$host$$request_uri;
     # }
 
-   include letsencrypt.conf;
-
+  location /.well-known/acme-challenge {
+    default_type "text/plain";
+    allow all;
+    }
   }
 }
 endef
@@ -489,7 +492,7 @@ text = True
 # Uncomment to use the webroot authenticator. Replace webroot-path with the
 # path to the public_html / webroot folder being served by your web server.
 authenticator = webroot
-webroot-path = $(NGINX_HOME)/html/
+webroot-path = $(NGINX_HOME)/html
 
 agree-tos = true
 
@@ -500,7 +503,6 @@ certbotConf:
 	@echo "if they don't exist create dirs"
 	@[ -d $(T)/certbot ] || mkdir $(T)/certbot
 	@[ -d /etc/letsencrypt ] || mkdir /etc/letsencrypt
-	@[ -d /tmp/letsencrypt ] || mkdir /tmp/letsencrypt
 	@echo "create cli config file"
 	@echo "$${certbotConfig}" > /etc/letsencrypt/cli.ini
 	@[ -d $(T)/certbot/certbot-auto ] || curl https://dl.eff.org/certbot-auto -o $(T)/certbot/certbot-auto 
