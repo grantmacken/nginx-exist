@@ -361,6 +361,7 @@ endef
 
 orLE: export orLetsEncryptConf:=$(ngSimporSimpleConf)
 orLE:
+	@[ -d mkdir /var/www/letsencrypt ] || /var/www/letsencrypt
 	@echo "$${orLetsEncryptConf}" > $(NGINX_HOME)/conf/letsencrypt.conf
 	@[ -e /opt/letsencrypt.sh/letsencrypt.sh ] || git clone https://github.com/lukas2511/letsencrypt.sh /opt/letsencrypt.sh/
 	@[ -d /opt/letsencrypt.sh/.acme-challenges ] || mkdir /opt/letsencrypt.sh/.acme-challenges
