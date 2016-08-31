@@ -20,7 +20,7 @@ luarocksVer != [ -e $(T)/luarocks-latest.version ] && cat $(T)/luarocks-latest.v
 
 .PHONY: orInstall luarocksInstall ngReload \
  downloadOpenresty downloadOpenssl downloadPcre downloadZlib downloadRedis\
- orService orSimpleConf orConf orGenSelfSigned certbotConf
+ openrestyService orSimpleConf orConf orGenSelfSigned certbotConf
 
 $(T)/openresty-latest.version: config
 	@echo " $(notdir $@) "
@@ -352,6 +352,26 @@ orLuaTest:
 #
 #################################
 
+define orLetsEncryptConf
+location /.well-known/acme-challenge {
+   default_type "text/plain";
+   alias        /opt/letsencrypt.sh/.acme-challenges;
+}
+endef
+
+orLE: export orLetsEncryptConf:=$(ngSimporSimpleConf)
+orLE:
+	@echo "$${orLetsEncryptConf}" > $(NGINX_HOME)/conf/letsencrypt.conf
+	@[ -d /opt/letsencrypt.sh ] || git clone https://github.com/lukas2511/letsencrypt.sh
+	@cd /opt/letsencrypt.sh && cp docs/examples/config config
+	@cat /opt/letsencrypt.sh/ && cp config
+
+
+
+
+
+
+
 define ngSimpleConf
 
 worker_processes $(shell grep ^proces /proc/cpuinfo | wc -l );
@@ -367,20 +387,19 @@ http {
   access_log off;
 
   server {
-    listen *:80;
+    listen 0.0.0.0:80 default_server;
+    listen    [::]:80 default_server ipv6only=on;
 
     server_name ~^(www\.)?(?<domain>.+)$$;
 
-    location ^~ /.well-known {
-      default_type "text/plain";
+    location / {
+        return 301 https://$$host$$request_uri;
     }
 
-    location / {
-      default_type text/html;
-    } 
- 
+   include letsencrypt.conf;
+
   }
- }
+}
 endef
 
 
@@ -391,19 +410,24 @@ orSimpleConf:
 	@[ -d $(NGINX_HOME)/lua ] || mkdir $(NGINX_HOME)/lua
 	@[ -d /etc/letsencrypt ] || mkdir /etc/letsencrypt
 	@[ -d /tmp/letsencrypt ] || mkdir /tmp/letsencrypt
+	@echo 'create a 4096-bits Diffie-Hellman parameter file that nginx can use'
+	@[ -d $(NGINX_HOME)/ssl ] || mkdir $(NGINX_HOME)/ssl
+	[  -e $(NGINX_HOME)//ssl/dh-param.pem ] || \
+ openssl dhparam -out $(NGINX_HOME)//ssl/dh-param.pem 4096
+	@echo 'clean out the nginx dir'
 	@find $(NGINX_HOME)/conf -type f -name 'fast*' -delete
 	@find $(NGINX_HOME)/conf -type f -name 'scgi*' -delete
 	@find $(NGINX_HOME)/conf -type f -name 'uwsgi*' -delete
 	@find $(NGINX_HOME)/conf -type f -name '*.default' -delete
-	@find $(NGINX_HOME)/conf -type f -name 'nginx.conf' -delete
 	@find $(NGINX_HOME)/logs -type f -name 'error.log' -delete
 	@find $(NGINX_HOME)/logs -type f -name 'koi-*' -delete
 	@find $(NGINX_HOME)/logs -type f -name 'win-*' -delete
+	@find $(NGINX_HOME)/conf -type f -name 'nginx.conf' -delete
 	@echo "$${ngSimpleConf}" > $(NGINX_HOME)/conf/nginx.conf
 
-ngReload:
-	@$(NGINX_HOME)/sbin/nginx -t
-	@$(NGINX_HOME)/sbin/nginx -s reload
+orReload:
+	@$(OPENRESTY_HOME)/bin/openresty -t
+	@$(OPENRESTY_HOME)/bin/openresty -s reload
 
 orConf: export ngConf:=$(ngConf)
 orConf:
@@ -524,8 +548,16 @@ nginx-open-resty-config:
 
 # curl https://www.openssl.org/source/openssl-$(shell echo "$$(<$@)").tar.gz | \
 #  tar xz --directory $(T)
+##################################
+#
+# Set up openresty as a service
+# 
+#  openresty now symlinked to usr/local/openresty/bin
+#
+#
+#
 
-define ngService
+define openrestyService
 [Unit]
 Description=OpenResty stack for Nginx HTTP server
 After=syslog.target network.target remote-fs.target nss-lookup.target
@@ -533,8 +565,8 @@ After=syslog.target network.target remote-fs.target nss-lookup.target
 [Service]
 Type=forking
 PIDFile=$(NGINX_HOME)/logs/nginx.pid
-ExecStartPre=$(NGINX_HOME)/sbin/nginx -t
-ExecStart=$(NGINX_HOME)/sbin/nginx
+ExecStartPre=$(OPENRESTY_HOME)bin/openresty -t
+ExecStart=$(OPENRESTY_HOME)/bin/openresty
 ExecReload=/bin/kill -s HUP $$MAINPID
 ExecStop=/bin/kill -s QUIT $$MAINPID
 PrivateTmp=true
@@ -543,9 +575,9 @@ PrivateTmp=true
 WantedBy=multi-user.target
 endef
 
-orService: export ngService:=$(ngService)
+orService: export openrestyService:=$(openrestyService)
 orService:
-	@echo "$(notdir $@)"
+	@echo "setup openresty as nginx.service under systemd"
 	@$(call assert-is-root)
 	@$(call assert-is-systemd)
 	@echo 'Check if service is enabled'
@@ -567,3 +599,6 @@ orService:
 	@systemctl is-failed nginx.service || echo 'OK!'
 	@journalctl -f -u nginx.service -o cat
 	@echo '--------------------------------------------------------------'
+
+
+
