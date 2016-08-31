@@ -361,13 +361,16 @@ endef
 
 orLE: export orLetsEncryptConf:=$(ngSimporSimpleConf)
 orLE:
-	@[ -d mkdir /var/www/letsencrypt ] || /var/www/letsencrypt
 	@echo "$${orLetsEncryptConf}" > $(NGINX_HOME)/conf/letsencrypt.conf
 	@[ -e /opt/letsencrypt.sh/letsencrypt.sh ] || git clone https://github.com/lukas2511/letsencrypt.sh /opt/letsencrypt.sh/
 	@[ -d /opt/letsencrypt.sh/.acme-challenges ] || mkdir /opt/letsencrypt.sh/.acme-challenges
 	@echo 'gmack.nz www.gmack.nz' > /opt/letsencrypt.sh/domains.txt
 	@echo 'CONTACT_EMAIL=grantmacken@gmail.com' > /opt/letsencrypt.sh/config
-	@echo 'create a 4096-bits Diffie-Hellman parameter file that nginx can use'
+	@[ -d /var/www/letsencrypt ] || ||\
+ echo  'create the ACME challenges directory'
+	@[ -d /var/www/letsencrypt ] || mkdir  -p /var/www/letsencrypt
+	@[ -e $(NGINX_HOME)/ssl/dh-param.pem  ] ||\
+ echo 'create a 4096-bits Diffie-Hellman parameter file that nginx can use'
 	@[ -d $(NGINX_HOME)/ssl ] || mkdir $(NGINX_HOME)/ssl
 	@[ -e $(NGINX_HOME)/ssl/dh-param.pem ] || openssl dhparam -out $(NGINX_HOME)//ssl/dh-param.pem 4096
 
