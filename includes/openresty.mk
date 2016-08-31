@@ -20,7 +20,7 @@ luarocksVer != [ -e $(T)/luarocks-latest.version ] && cat $(T)/luarocks-latest.v
 
 .PHONY: orInstall luarocksInstall ngReload \
  downloadOpenresty downloadOpenssl downloadPcre downloadZlib downloadRedis\
- openrestyService orSimpleConf orConf orGenSelfSigned certbotConf
+ orLE openrestyService orSimpleConf orConf orGenSelfSigned certbotConf
 
 $(T)/openresty-latest.version: config
 	@echo " $(notdir $@) "
@@ -365,11 +365,6 @@ orLE:
 	@[ -d /opt/letsencrypt.sh ] || git clone https://github.com/lukas2511/letsencrypt.sh
 	@cd /opt/letsencrypt.sh && cp docs/examples/config config
 	@cat /opt/letsencrypt.sh/ && cp config
-
-
-
-
-
 
 
 define ngSimpleConf
