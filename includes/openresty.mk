@@ -186,60 +186,31 @@ http {
 
   default_type application/octet-stream;
 
-  # The "auto_ssl" shared dict should be defined with enough storage space to
-  # hold your certificate data. 1MB of storage holds certificates for
-  # approximately 100 separate domains.
-  lua_shared_dict auto_ssl 1m;
-
   # A DNS resolver must be defined for OCSP stapling to function.
   resolver 8.8.8.8;
-  # Initial setup tasks.
-  # init_by_lua_block {
-  #   local rocks = require "luarocks.loader"
-  #   auto_ssl = (require "resty.auto-ssl").new()
-
-  #   -- Define a function to determine which SNI domains to automatically handle
-  #   -- and register new certificates for. Defaults to not allowing any domains,
-  #   -- so this must be configured.
-  #   auto_ssl:set("allow_domain", function(domain)
-  #     return true
-  #   end)
-
-  #   auto_ssl:init()
-  # }
-
-  # init_worker_by_lua_block {
-  #   auto_ssl:init_worker()
-  # }
 
   access_log off;
 
   # HTTPS server 
   server {
-    listen 443 ssl http2;
-    listen [::]:443 ssl http2;
+    listen 443 default_server  ssl http2;
+    listen [::]:443  default_server ssl http2;
 
-    # certs sent to the client in SERVER HELLO are concatenated in ssl_certificate
-
-    # Dynamic handler for issuing or returning certs for SNI domains.
-     # ssl_certificate_by_lua_block {
-     # auto_ssl:ssl_certificate()
-     # }
-
-    # You must still define a static ssl_certificate file for nginx to start.
-    # certs sent to the client in SERVER HELLO are concatenated in ssl_certificat
-    # ssl_certificate     /etc/ssl/resty-auto-ssl-fallback.crt;
-    # ssl_certificate_key /etc/ssl/resty-auto-ssl-fallback.key;
+  # certificates from letsencrypt
+    ssl_certificate         /etc/letsencrypt/live/gmack.nz/fullchain.pem;
+    ssl_certificate_key     /etc/letsencrypt/live/gmack.nz/privkey.pem;
 
     ssl_session_timeout 1d;
     ssl_session_cache shared:SSL:50m;
     ssl_session_tickets off;
 
     # Diffie-Hellman parameter for DHE ciphersuites, recommended 2048 bits
-     # ssl_dhparam /path/to/dhparam.pem;
+    ssl_dhparam ssl/dh-param.pem;
+
     # modern configuration. tweak to your needs.
     ssl_protocols TLSv1.2;
     ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256';
+
     ssl_prefer_server_ciphers on;
 
     # HSTS (ngx_http_headers_module is required) (15768000 seconds = 6 months)
@@ -247,51 +218,34 @@ http {
 
     # OCSP Stapling ---
     # fetch OCSP records from URL in ssl_certificate and cache them
-    # ssl_stapling on;
-    # ssl_stapling_verify on;
+     ssl_stapling on;
+     ssl_stapling_verify on;
 
-    ## verify chain of trust of OCSP response using Root CA and Intermediate certs
-    # ssl_trusted_certificate /path/to/root_CA_cert_plus_intermediates;
+    # verify chain of trust of OCSP response using Root CA and Intermediate certs
+     ssl_trusted_certificate /etc/letsencrypt/live/gmack.nz/chain.pem;
 
     location / {
       default_type text/html;
       content_by_lua '
       ngx.say("<p>hello, world</p>")
       ';
-      } 
-   }
+     }
+  }
 
    # HTTP server
-   server {
+  server {
     listen 80 default_server;
     listen [::]:80 default_server;
-    server_name gmack.nz example.com;
+    server_name gmack.nz;
 
     # Endpoint used for performing domain verification with Let's Encrypt.
-    location /.well-known/acme-challenge/ {
-       default_type "text/plain";
-       root /tmp/letsencrypt;
-       # content_by_lua_block {
-       #   auto_ssl:challenge_server()
-       # }
-    }
-
+    include letsencrypt.conf
+ 
     # Redirect all HTTP requests to HTTPS with a 301 Moved Permanently response.
     location / {
       return 301 https://$http_host$request_uri;
     }
-
-   }
-
-  # Internal server running on port 8999 for handling certificate tasks.
-  # server {
-  #   listen 127.0.0.1:8999;
-  #   location / {
-  #     content_by_lua_block {
-  #       auto_ssl:hook_server()
-  #     }
-  #   }
-  # }
+  }
 }
 endef
 
@@ -428,28 +382,17 @@ orInitConf:
 	@[ -e $(NGINX_HOME)/ssl/dh-param.pem  ] || \
  echo 'create a 4096-bits Diffie-Hellman parameter file that nginx can use'
 	@[ -d $(NGINX_HOME)/ssl ] || mkdir $(NGINX_HOME)/ssl
-	@[ -e $(NGINX_HOME)/ssl/dh-param.pem ] || openssl dhparam -out $(NGINX_HOME)//ssl/dh-param.pem 4096
+	@[ -e $(NGINX_HOME)/ssl/dh-param.pem ] || openssl dhparam -out $(NGINX_HOME)/ssl/dh-param.pem 4096
 	@echo "$${cnfInit}" > $(NGINX_HOME)/conf/nginx.conf
 	@$(MAKE) incLetsEncrypt
+
+orConf: export ngConf:=$(ngConf)
+orConf:
+	@echo "$${ngConf}" > $(NGINX_HOME)/conf/nginx.conf
 
 orReload:
 	@$(OPENRESTY_HOME)/bin/openresty -t
 	@$(OPENRESTY_HOME)/bin/openresty -s reload
-
-orConf: export ngConf:=$(ngConf)
-orConf:
-	@[ -d $(NGINX_HOME)/proxy ] || mkdir $(NGINX_HOME)/proxy
-	@[ -d $(NGINX_HOME)/cache ] || mkdir $(NGINX_HOME)/cache
-	@[ -d $(NGINX_HOME)/lua ]   || mkdir $(NGINX_HOME)/lua
-	@[ -d $(NGINX_HOME)/ssl ]   || mkdir $(NGINX_HOME)/ssl
-	@find $(NGINX_HOME)/conf -type f -name 'fast*' -delete
-	@find $(NGINX_HOME)/conf -type f -name 'scgi*' -delete
-	@find $(NGINX_HOME)/conf -type f -name 'uwsgi*' -delete
-	@find $(NGINX_HOME)/conf -type f -name '*.default' -delete
-	@find $(NGINX_HOME)/conf -type f -name 'nginx.conf' -delete
-	@find $(NGINX_HOME)/logs -type f -name 'error.log' -delete
-	@echo "$${ngConf}" > $(NGINX_HOME)/conf/nginx.conf
-
 
 #########################################################
 # 
