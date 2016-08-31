@@ -205,7 +205,7 @@ http {
     ssl_session_tickets off;
 
     # Diffie-Hellman parameter for DHE ciphersuites, recommended 2048 bits
-    ssl_dhparam ssl/dh-param.pem;
+    ssl_dhparam ../ssl/dh-param.pem;
 
     # modern configuration. tweak to your needs.
     ssl_protocols TLSv1.2;
