@@ -20,7 +20,7 @@ luarocksVer != [ -e $(T)/luarocks-latest.version ] && cat $(T)/luarocks-latest.v
 
 .PHONY: orInstall luarocksInstall ngReload \
  downloadOpenresty downloadOpenssl downloadPcre downloadZlib downloadRedis\
- orLE openrestyService orSimpleConf orConf orGenSelfSigned certbotConf
+ incLetsEncrypt orInitConf openrestyService  orConf orGenSelfSigned certbotConf
 
 $(T)/openresty-latest.version: config
 	@echo " $(notdir $@) "
@@ -171,11 +171,19 @@ worker_processes $(shell grep ^proces /proc/cpuinfo | wc -l );
 error_log logs/error.log;
 
 events {
-  worker_connections  1024;
+  multi_accept       on;
+  worker_connections 1024;
+  use                epoll;
 }
 
 http {
+  sendfile on;
+  aio on;
+  directio 2m;
   include mime.types;
+  tcp_nodelay on;
+  tcp_nopush on;
+
   default_type application/octet-stream;
 
   # The "auto_ssl" shared dict should be defined with enough storage space to
@@ -352,33 +360,18 @@ orLuaTest:
 #
 #################################
 
-define orLetsEncryptConf
-location /.well-known/acme-challenge {
-   default_type "text/plain";
-   alias        /opt/letsencrypt.sh/.acme-challenges
-}
+define cnfLetsEncrypt
+  location /.well-known/acme-challenge {
+    default_type "text/plain";
+    allow all;
+    }
 endef
 
-orLE: export orLetsEncryptConf:=$(ngSimporSimpleConf)
-orLE:
-	@echo "$${orLetsEncryptConf}" > $(NGINX_HOME)/conf/letsencrypt.conf
-	@[ -e /opt/letsencrypt.sh/letsencrypt.sh ] || git clone https://github.com/lukas2511/letsencrypt.sh /opt/letsencrypt.sh/
-	@echo 'gmack.nz www.gmack.nz' > /opt/letsencrypt.sh/domains.txt
-	@echo 'CONTACT_EMAIL=grantmacken@gmail.com' > /opt/letsencrypt.sh/config
-	@[ -d /var/www/letsencrypt ] ||\
- echo  'create the ACME challenges directory'
-	@[ -d /var/www/letsencrypt ] || mkdir  -p /var/www/letsencrypt
-	@[ -e $(NGINX_HOME)/ssl/dh-param.pem  ] ||\
- echo 'create a 4096-bits Diffie-Hellman parameter file that nginx can use'
-	@[ -d $(NGINX_HOME)/ssl ] || mkdir $(NGINX_HOME)/ssl
-	@[ -e $(NGINX_HOME)/ssl/dh-param.pem ] || openssl dhparam -out $(NGINX_HOME)//ssl/dh-param.pem 4096
+incLetsEncrypt: export cnfLetsEncrypt:=$(cnfLetsEncrypt)
+incLetsEncrypt:
+	@echo "$${cnfLetsEncrypt}" > $(NGINX_HOME)/conf/letsencrypt.conf
 
-#@cd /opt/letsencrypt.sh && cp docs/examples/config config
-#@[ -d /opt/letsencrypt.sh/.acme-challenges ] || mkdir /opt/letsencrypt.sh/.acme-challenges
-
-#@echo 'WELLKNOWN="/opt/letsencrypt.sh/.acme-challenges"' > /opt/letsencrypt.sh/config
-
-define ngSimpleConf
+define cnfInit
 
 worker_processes $(shell grep ^proces /proc/cpuinfo | wc -l );
 error_log logs/error.log;
@@ -418,12 +411,12 @@ http {
 endef
 
 
-orSimpleConf: export ngSimpleConf:=$(ngSimpleConf)
-orSimpleConf:
+orInitConf: export cnfInit:=$(cnfInit)
+orInitConf:
 	@[ -d $(NGINX_HOME)/proxy ] || mkdir $(NGINX_HOME)/proxy
 	@[ -d $(NGINX_HOME)/cache ] || mkdir $(NGINX_HOME)/cache
-	@[ -d $(NGINX_HOME)/lua ] || mkdir $(NGINX_HOME)/lua
-	@echo 'clean out the nginx dir'
+	@[ -d $(NGINX_HOME)/lua ]   || mkdir $(NGINX_HOME)/lua
+	@echo 'cleaning out the nginx dir'
 	@find $(NGINX_HOME)/conf -type f -name 'fast*' -delete
 	@find $(NGINX_HOME)/conf -type f -name 'scgi*' -delete
 	@find $(NGINX_HOME)/conf -type f -name 'uwsgi*' -delete
@@ -432,7 +425,12 @@ orSimpleConf:
 	@find $(NGINX_HOME)/logs -type f -name 'koi-*' -delete
 	@find $(NGINX_HOME)/logs -type f -name 'win-*' -delete
 	@find $(NGINX_HOME)/conf -type f -name 'nginx.conf' -delete
-	@echo "$${ngSimpleConf}" > $(NGINX_HOME)/conf/nginx.conf
+	@[ -e $(NGINX_HOME)/ssl/dh-param.pem  ] || \
+ echo 'create a 4096-bits Diffie-Hellman parameter file that nginx can use'
+	@[ -d $(NGINX_HOME)/ssl ] || mkdir $(NGINX_HOME)/ssl
+	@[ -e $(NGINX_HOME)/ssl/dh-param.pem ] || openssl dhparam -out $(NGINX_HOME)//ssl/dh-param.pem 4096
+	@echo "$${cnfInit}" > $(NGINX_HOME)/conf/nginx.conf
+	@$(MAKE) incLetsEncrypt
 
 orReload:
 	@$(OPENRESTY_HOME)/bin/openresty -t
@@ -442,8 +440,8 @@ orConf: export ngConf:=$(ngConf)
 orConf:
 	@[ -d $(NGINX_HOME)/proxy ] || mkdir $(NGINX_HOME)/proxy
 	@[ -d $(NGINX_HOME)/cache ] || mkdir $(NGINX_HOME)/cache
-	@[ -d $(NGINX_HOME)/lua ] || mkdir $(NGINX_HOME)/lua
-	@[ -d $(NGINX_HOME)/ssl ] || mkdir $(NGINX_HOME)/ssl
+	@[ -d $(NGINX_HOME)/lua ]   || mkdir $(NGINX_HOME)/lua
+	@[ -d $(NGINX_HOME)/ssl ]   || mkdir $(NGINX_HOME)/ssl
 	@find $(NGINX_HOME)/conf -type f -name 'fast*' -delete
 	@find $(NGINX_HOME)/conf -type f -name 'scgi*' -delete
 	@find $(NGINX_HOME)/conf -type f -name 'uwsgi*' -delete
