@@ -4,44 +4,7 @@ EXIST_JAR = $(call cat,$(EXIST_VERSION))
 EXIST_JAR_PATH = $(T)/$(call cat,$(EXIST_VERSION))
 # shortcuts
 JAVA := $(shell which java)
-START_JAR := $(JAVA) \
- -Dexist.home=$(EXIST_HOME) \
- -Djetty.home=$(EXIST_HOME)/tools/jetty \
- -Dfile.encoding=UTF-8 \
- -Djava.endorsed.dirs=$(EXIST_HOME)/lib/endorsed \
- -Djavax.net.ssl.keyStore=$(EXIST_HOME)/tools/jetty/etc/keystore \
- -Djavax.net.ssl.keyStorePassword=secret \
- -Djavax.net.ssl.trustStore=$(EXIST_HOME)/tools/jetty/etc/keystore \
- -Djava.net.preferIPv4Stack=true \
- -Djavax.net.ssl.trustStorePassword=secret \
- -Dsun.security.ssl.allowLegacyHelloMessages=true \
- -Dsun.security.ssl.allowUnsafeRenegotiation=true \
- -Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2,SSLv2Hello \
- -Djsse.enableSNIExtension=true \
- -Dorg.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER \
- -Djavax.net.debug=ssl,handshake \
- -jar $(EXIST_HOME)/start.jar
-
-# http://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#InstallationAndCustomization
-# sun.security.ssl.allowUnsafeRenegotiatio
-# -Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2,SSLv2Hello
- # -Djava.net.preferIPv4Stack=true \
- # /usr/lib/jvm/java-8-oracle/jre/lib/security/cacerts
- # -Djavax.net.ssl.keyStore=$(EXIST_HOME)/tools/jetty/etc/keystore \
- # -Djavax.net.ssl.keyStorePassword=secret \
- # -Djavax.net.ssl.trustStore=$(EXIST_HOME)/tools/jetty/etc/keystore \
- # -Djavax.net.ssl.trustStorePassword=secret \i
- # -Djava.endorsed.dirs=$(EXIST_HOME)/lib/endorsed \
- # -Djava.net.preferIPv4Stack=true \
- # -Djavax.net.ssl.keyStore=$(EXIST_HOME)/tools/jetty/etc/keystore \
- # -Djavax.net.ssl.keyStorePassword=secret \
- # -Djavax.net.ssl.trustStore=/usr/lib/jvm/java-8-oracle/jre/lib/security/cacerts \
- # -Djavax.net.ssl.trustStorePassword=changeit \
- # -Djavax.net.debug=ssl,handshake 
- #
- # org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER
-
-
+START_JAR := $(JAVA) -Djava.endorsed.dirs=lib/endorsed -jar start.jar
 EXPECT := $(shell which expect)
 EXIST_DOWNLOAD_SOURCE=https://bintray.com/artifact/download/existdb/releases
 EXIST_VERSION_SOURCE=https://bintray.com/existdb/releases/exist/_latestVersion
@@ -54,17 +17,15 @@ $(EXIST_VERSION):
 	@cat $@
 	@echo '}}}'
 
-$(T)/wget-eXist.log:  $(T)/eXist-latest.version
+$(T)/wget-eXist.log: $(EXIST_VERSION)
 	@echo "{{{## $(notdir $@) ##"
 	@$(if $(call EXIST_JAR),,$(error oh no! this is bad))
 	@echo "EXIST_JAR: $(call EXIST_JAR)"
 	@echo "EXIST_JAR_PATH: $(call EXIST_JAR_PATH)"
 	@echo "Downloading $(call EXIST_JAR). Be Patient! this can take a few minutes"
-	@$(if $(wildcard $(call EXIST_JAR_PATH)),\
- touch $@,\
- wget -o $@ -O "$(call EXIST_JAR_PATH)" \
+	@wget -o $@ -O "$(call EXIST_JAR_PATH)" \
  --trust-server-name  --progress=dot$(:)mega -nc \
- "$(EXIST_DOWNLOAD_SOURCE)/$(call EXIST_JAR)")
+ "$(EXIST_DOWNLOAD_SOURCE)/$(call EXIST_JAR)"
 	echo '# because we use wget with no clobber, if we have source then just touch log'
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@cat $@
@@ -123,39 +84,35 @@ $(T)/eXist-run.sh: $(T)/eXist-expect.log
 	@chmod +x $(@)
 	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
 	@echo '---------}}}'
-	
-define existService
-[Unit]
-Description=The exist db application server
-After=network.target
 
-[Service]
-Environment="EXIST_HOME=$(EXIST_HOME)"
-$(if $(SUDO_USER),
-Environment="SERVER=development",
-Environment="SERVER=production")
-WorkingDirectory=$(EXIST_HOME)
-User=$(INSTALLER)
-Group=$(INSTALLER)
-ExecStart=$(START_JAR) jetty
-ExecStop=$(START_JAR) shutdown -u admin -p $(P)
-
-[Install]
-WantedBy=multi-user.target
-endef
-
-$(T)/exist.service: export existService:=$(existService)
-$(T)/exist.service:
-	@echo "{{{ $(notdir $@) "
+$(T)/exist.service: $(T)/eXist-expect.log
+	@echo "{{{  $(notdir $@) "
+	$(if $(shell ps -p1 | grep systemd ),\
+ $(info  OK init system is systemd),\
+ $(error init system is not systemd) )
 	@$(call assert-is-root)
-	@$(call assert-is-systemd)
-	@echo "$${existService}" > $@
-	@$(call chownToUser,$@)
-	@cp -f $@ /lib/systemd/system/$(notdir $@)
+	@systemctl is-failed exist.service > /dev/null && echo 'OK! unit intentionally stopped'
+	$(file > $(@),[Unit])
+	$(file >> $(@),Description=The exist db application server)
+	$(file >> $(@),After=network.target)
+	$(file >> $(@),)
+	$(file >> $(@),[Service])
+	$(file >> $(@),Environment="EXIST_HOME=$(EXIST_HOME)")
+	$(file >> $(@),$(if $(SUDO_USER),Environment="SERVER=development",Environment="SERVER=production"))
+	$(file >> $(@),WorkingDirectory=$(EXIST_HOME))
+	$(file >> $(@),User=$(INSTALLER))
+	$(file >> $(@),Group=$(INSTALLER))
+	$(file >> $(@),ExecStart=$(START_JAR) jetty)
+	$(file >> $(@),ExecStop=$(START_JAR) shutdown -u admin -p $(P) )
+	$(file >> $(@),)
+	$(file >> $(@),[Install])
+	$(file >> $(@),WantedBy=multi-user.target)
+	@cp $@ /lib/systemd/system/$(notdir $@)
 	@systemd-analyze verify $(notdir $@)
 	@systemctl enable  $(notdir $@)
 	@systemctl start  $(notdir $@)
-	@echo '}}}'
+	@$(if $(SUDO_USER),chown $(SUDO_USER)$(:)$(SUDO_USER) $(@),)
+	@echo '-----}}}'
 
 .PHONY: git-user-as-eXist-user
 

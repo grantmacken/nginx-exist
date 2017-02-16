@@ -12,11 +12,10 @@ NOTE: run as sudo
 
 1. `make eXist` automated eXist console install from latest release 
 2. `make nginx` compile nginx from latest 'mainline' source files
-3. `make nginx-config` reset and test nginx config then reload nginx 
+3. `make nginx-conf` reset and test nginx config then reload nginx 
 4. `make nginx-service`  load on boot service under systemd
 5. `make exist-service` load on boot service under systemd 
 6. `make webdav` automated webdav install (only for local machine not VPS)
-6. `make git-user-as-eXist-user` create an user based on git user-name and access token
 
 ---------------------------------------------------------------------------------
 
@@ -61,7 +60,7 @@ whatever is nominated in the config file.
 
 ##Requirements##
 
-A modern Linux OS that uses `systemd`. I recommend  Ubuntu  16.4 onwards
+A modern Linux OS that uses `systemd`. I recommend  Ubuntu  15.10 onwards
 
 gnu Make, expect, git, curl, wget, java 8 ( I'll include my install script for this later)
 
