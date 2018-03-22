@@ -39,10 +39,10 @@ $(T)/eXist.expect: $(T)/wget-eXist.log
 	$(if $(SUDO_USER),\
  echo 'spawn su -c "java -jar $(call EXIST_JAR_PATH) -console" -s /bin/sh $(INSTALLER)' >> $(@),\
  echo 'spawn java -jar $(call EXIST_JAR_PATH) -console' >> $(@))
-	@echo 'expect "Select target" { send "$(EXIST_HOME)\n" }'  >> $(@)
+	@echo 'expect "Select target path" { send "$(EXIST_HOME)\n" }'  >> $(@)
 	@echo 'expect "*ress 1" { send "1\n" }'  >> $(@)
-	@echo 'expect "*ress 1" { send "1\n" }'  >> $(@)
-	@echo 'expect "Data dir" { send "$(EXIST_DATA_DIR)\n" }' >> $(@)
+	@echo 'expect "Set Data Directory" { send "$(EXIST_DATA_DIR)\n" }' >> $(@)
+	@echo 'expect "*ress 1" { send "1\n" }' >> $(@)
 	@echo 'expect "*ress 1" { send "1\n" }' >> $(@)
 	@echo 'expect "Enter password" { send "$(P)\n" }' >> $(@)
 	@echo 'expect "Enter password" { send "$(P)\n" }' >> $(@)
